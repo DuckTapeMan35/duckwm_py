@@ -113,6 +113,17 @@ def grid_cell(
     )
 
 
+def grid_cell_abs(
+    container: RefLike, x: int, y: int, w: int, h: int
+) -> pb.ConstraintSpec:
+    """An exact rectangle inside container, in its own coordinates."""
+    return pb.ConstraintSpec(
+        grid_cell_abs=pb.ConstraintSpecGridCellAbs(
+            x=x, y=y, w=max(0, w), h=max(0, h), container=ref(container)
+        )
+    )
+
+
 def fill(container: RefLike) -> pb.ConstraintSpec:
     """The whole of container."""
     return grid_cell(container)
