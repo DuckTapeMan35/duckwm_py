@@ -1,0 +1,16 @@
+#!/bin/sh
+# Regenerate the protocol bindings from duckwm's schema.
+# DUCKWM_PROTO overrides the schema path; otherwise it's taken from DUCKWM_SRC.
+set -eu
+
+proto="${DUCKWM_PROTO:-${DUCKWM_SRC:?set DUCKWM_SRC to your duckwm checkout}/proto/duckwm.proto}"
+out="$(dirname "$0")/../src/duckwm/_proto"
+
+mkdir -p "$out"
+protoc -I "$(dirname "$proto")" \
+  --python_out="$out" \
+  --mypy_out="$out" \
+  "$(basename "$proto")"
+touch "$out/__init__.py"
+echo "generated from $proto"
+python "$(dirname "$0")/gen_api.py"
