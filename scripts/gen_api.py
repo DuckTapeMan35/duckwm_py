@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PKG = ROOT / "src" / "duckwm"
 sys.path.insert(0, str(PKG / "_proto"))  # the pb2 alone: the package may not import yet
 
-import duckwm_pb2 as pb  # noqa: E402
-from google.protobuf.descriptor import FieldDescriptor as FD  # noqa: E402
+import duckwm_pb2 as pb
+from google.protobuf.descriptor import FieldDescriptor as FD
 
 INTS = {
     FD.TYPE_INT32,
@@ -85,7 +85,7 @@ def py_type(f) -> str:
     elif f.type in (FD.TYPE_DOUBLE, FD.TYPE_FLOAT):
         t = "float"
     elif f.type in INTS:
-        t = "int | str" if f.name in COLORS else "int"
+        t = "int | str" if f.name in COLORS or f.name == "mods" else "int"
     else:
         t = "Any"
     return f"Sequence[{t}]" if repeated(f) else t

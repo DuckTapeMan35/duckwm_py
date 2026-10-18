@@ -133,6 +133,10 @@ def _scalar(f: FD, v: Any) -> Any:
             names = ", ".join(n.removeprefix(prefix).lower() for n in e.values_by_name)
             raise ValueError(f"{f.name}: {v!r} isn't one of {names}")
         return e.values_by_name[full].number
+    if f.name == "mods" and isinstance(v, str):
+        from ._mods import parse_mods
+
+        return parse_mods(v)
     if (
         isinstance(v, str)
         and v.startswith("#")

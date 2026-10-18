@@ -374,15 +374,15 @@ def remove_rule(id: int) -> Cmd:
     return Cmd('remove_rule', {'id': id})
 
 
-def set_resize_modifier(mods: int) -> Cmd:
+def set_resize_modifier(mods: int | str) -> Cmd:
     return Cmd('set_resize_modifier', {'mods': mods})
 
 
-def set_float_modifier(mods: int) -> Cmd:
+def set_float_modifier(mods: int | str) -> Cmd:
     return Cmd('set_float_modifier', {'mods': mods})
 
 
-def set_pan_modifier(mods: int) -> Cmd:
+def set_pan_modifier(mods: int | str) -> Cmd:
     return Cmd('set_pan_modifier', {'mods': mods})
 
 
@@ -438,15 +438,15 @@ def set_keyboard_layout_index(index: int) -> Cmd:
     return Cmd('set_keyboard_layout_index', {'index': index})
 
 
-def bind_commands(mods: int, key: str, commands: Sequence[CommandLike]) -> Cmd:
+def bind_commands(mods: int | str, key: str, commands: Sequence[CommandLike]) -> Cmd:
     return Cmd('bind_commands', {'mods': mods, 'key': key, 'commands': commands})
 
 
-def unbind(mods: int, key: str) -> Cmd:
+def unbind(mods: int | str, key: str) -> Cmd:
     return Cmd('unbind', {'mods': mods, 'key': key})
 
 
-def bind(mods: int, key: str, callback: CallbackLike) -> Cmd:
+def bind(mods: int | str, key: str, callback: CallbackLike) -> Cmd:
     return Cmd('bind', {'mods': mods, 'key': key, 'callback': callback})
 
 

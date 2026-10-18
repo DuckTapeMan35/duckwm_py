@@ -290,13 +290,13 @@ class Api:
     def remove_rule(self, id: int) -> Any:
         return self.run(cmd.remove_rule(id))[0]
 
-    def set_resize_modifier(self, mods: int) -> Any:
+    def set_resize_modifier(self, mods: int | str) -> Any:
         return self.run(cmd.set_resize_modifier(mods))[0]
 
-    def set_float_modifier(self, mods: int) -> Any:
+    def set_float_modifier(self, mods: int | str) -> Any:
         return self.run(cmd.set_float_modifier(mods))[0]
 
-    def set_pan_modifier(self, mods: int) -> Any:
+    def set_pan_modifier(self, mods: int | str) -> Any:
         return self.run(cmd.set_pan_modifier(mods))[0]
 
     def set_pan_button(self, button: int) -> Any:
@@ -338,10 +338,10 @@ class Api:
     def set_keyboard_layout_index(self, index: int) -> Any:
         return self.run(cmd.set_keyboard_layout_index(index))[0]
 
-    def bind_commands(self, mods: int, key: str, commands: Sequence[CommandLike]) -> Any:
+    def bind_commands(self, mods: int | str, key: str, commands: Sequence[CommandLike]) -> Any:
         return self.run(cmd.bind_commands(mods, key, commands))[0]
 
-    def unbind(self, mods: int, key: str) -> Any:
+    def unbind(self, mods: int | str, key: str) -> Any:
         return self.run(cmd.unbind(mods, key))[0]
 
     def set_default_focused_border_color(self, color: int | str) -> Any:

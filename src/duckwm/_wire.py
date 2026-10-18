@@ -42,6 +42,15 @@ class Connection:
     def __exit__(self, *_: object) -> None:
         self.close()
 
+    @property
+    def peer_pid(self) -> int:
+        """duckwm's PID, from the socket's peer credentials."""
+        creds = self.sock.getsockopt(
+            socket.SOL_SOCKET, socket.SO_PEERCRED, struct.calcsize("3i")
+        )
+        pid, _uid, _gid = struct.unpack("3i", creds)
+        return pid
+
     def send(self, msg: pb.ClientMessage) -> None:
         body = msg.SerializeToString()
         try:

@@ -1,30 +1,22 @@
 """The client: requests, callbacks, and answering duckwm's calls."""
 
+import functools
+import os
 import sys
 import traceback
 from collections.abc import Callable
-from typing import Any, Self
+from pathlib import Path
+from typing import Any, Literal, Self
 
 from . import cmd
 from ._api import Api
 from ._encode import CallbackLike, Cmd, CommandLike, encode_all
+from ._mods import parse_mods
 from ._proto import duckwm_pb2 as pb
 from ._reply import UNSET, Reply
 from ._wire import Closed, Connection
 from .arrange import Arranger, Snapshot
 from .value import from_value, to_value
-
-MODS = {
-    "shift": 1,
-    "lock": 2,
-    "ctrl": 4,
-    "control": 4,
-    "alt": 8,
-    "mod2": 16,
-    "mod3": 32,
-    "super": 64,
-    "mod5": 128,
-}
 
 
 class Rejected(Exception):
@@ -33,16 +25,10 @@ class Rejected(Exception):
 
 def parse_combo(combo: str) -> tuple[int, str]:
     """ "super+shift+a" -> (65, "a"). The key is the last part, as an xkb keysym name."""
-    *mods, key = combo.split("+")
+    mods, _, key = combo.rpartition("+")
     if not key:
         raise ValueError(f"missing key in {combo!r}")
-    bits = 0
-    for m in mods:
-        try:
-            bits |= MODS[m.lower()]
-        except KeyError:
-            raise ValueError(f"unknown modifier {m!r} in {combo!r}") from None
-    return bits, key
+    return parse_mods(mods), key
 
 
 Handler = Callable[[pb.CallArgs], Reply | None]
@@ -104,6 +90,25 @@ class Client(Api):
             msg = self._conn.recv()
             if msg.WhichOneof("kind") == "call":
                 self._handle_call(msg.call)
+
+    # ---- which duckwm ----
+
+    @functools.cached_property
+    def platform(self) -> Literal["x11", "river"]:
+        """Which duckwm this is, from its executable's name (duckwm-river on Wayland)."""
+        exe = os.path.basename(os.readlink(f"/proc/{self._conn.peer_pid}/exe"))
+        return "river" if "river" in exe else "x11"
+
+    @functools.cached_property
+    def startup(self) -> bool:
+        """True for the first connection to this duckwm process, from any client
+        using this library: for things to do once per session, like autostart."""
+        run = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+        try:
+            (run / f"duckwm-started-{self._conn.peer_pid}").touch(exist_ok=False)
+            return True
+        except FileExistsError:
+            return False
 
     # ---- callbacks ----
 
