@@ -488,6 +488,9 @@ class Api:
     def reload_config(self) -> Any:
         return self.run(cmd.reload_config())[0]
 
+    def eval(self, source: str) -> Any:
+        return self.run(cmd.eval(source))[0]
+
     def get_layout(self) -> Any:
         return self.run(cmd.get_layout())[0]
 

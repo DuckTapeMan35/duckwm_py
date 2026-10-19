@@ -642,6 +642,10 @@ def reload_config() -> Cmd:
     return Cmd('reload_config', {})
 
 
+def eval(source: str) -> Cmd:
+    return Cmd('eval', {'source': source})
+
+
 def get_layout() -> Cmd:
     return Cmd('get_layout', {})
 
