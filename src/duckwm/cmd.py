@@ -450,6 +450,14 @@ def bind(mods: int | str, key: str, callback: CallbackLike) -> Cmd:
     return Cmd('bind', {'mods': mods, 'key': key, 'callback': callback})
 
 
+def read_line(prompt: str, callback: CallbackLike, initial: str | None = None) -> Cmd:
+    return Cmd('read_line', {'prompt': prompt, 'callback': callback, 'initial': initial})
+
+
+def set_prompt_keys(keys: Literal['emacs', 'vi'] | int) -> Cmd:
+    return Cmd('set_prompt_keys', {'keys': keys})
+
+
 def set_default_focused_border_color(color: int | str) -> Cmd:
     return Cmd('set_default_focused_border_color', {'color': color})
 
@@ -548,6 +556,10 @@ def clear_node_indicator(id: int) -> Cmd:
 
 def set_animation(duration_ms: int, curve: pb.Curve | dict[str, Any] | None = None) -> Cmd:
     return Cmd('set_animation', {'duration_ms': duration_ms, 'curve': curve})
+
+
+def message(text: str, timeout_ms: int) -> Cmd:
+    return Cmd('message', {'text': text, 'timeout_ms': timeout_ms})
 
 
 def switch_to_workspace(index: int) -> Cmd:

@@ -344,6 +344,12 @@ class Api:
     def unbind(self, mods: int | str, key: str) -> Any:
         return self.run(cmd.unbind(mods, key))[0]
 
+    def read_line(self, prompt: str, callback: CallbackLike, initial: str | None = None) -> Any:
+        return self.run(cmd.read_line(prompt, callback, initial))[0]
+
+    def set_prompt_keys(self, keys: Literal['emacs', 'vi'] | int) -> Any:
+        return self.run(cmd.set_prompt_keys(keys))[0]
+
     def set_default_focused_border_color(self, color: int | str) -> Any:
         return self.run(cmd.set_default_focused_border_color(color))[0]
 
@@ -418,6 +424,9 @@ class Api:
 
     def set_animation(self, duration_ms: int, curve: pb.Curve | dict[str, Any] | None = None) -> Any:
         return self.run(cmd.set_animation(duration_ms, curve))[0]
+
+    def message(self, text: str, timeout_ms: int) -> Any:
+        return self.run(cmd.message(text, timeout_ms))[0]
 
     def switch_to_workspace(self, index: int) -> Any:
         return self.run(cmd.switch_to_workspace(index))[0]
