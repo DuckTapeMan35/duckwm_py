@@ -310,6 +310,14 @@ def resize_focused_corner(dx: int, dy: int) -> Cmd:
     return Cmd('resize_focused_corner', {'dx': dx, 'dy': dy})
 
 
+def set_zoom(zoom: float) -> Cmd:
+    return Cmd('set_zoom', {'zoom': zoom})
+
+
+def get_zoom() -> Cmd:
+    return Cmd('get_zoom', {})
+
+
 def get_window_class(id: int) -> Cmd:
     return Cmd('get_window_class', {'id': id})
 
@@ -692,3 +700,55 @@ def get_arranger_index() -> Cmd:
 
 def set_arranger_index(index: int) -> Cmd:
     return Cmd('set_arranger_index', {'index': index})
+
+
+def get_outputs() -> Cmd:
+    return Cmd('get_outputs', {})
+
+
+def focus_output(dir: Literal['left', 'right', 'up', 'down'] | int) -> Cmd:
+    return Cmd('focus_output', {'dir': dir})
+
+
+def send_to_output(id: int, dir: Literal['left', 'right', 'up', 'down'] | int) -> Cmd:
+    return Cmd('send_to_output', {'id': id, 'dir': dir})
+
+
+def get_output_states() -> Cmd:
+    return Cmd('get_output_states', {})
+
+
+def create_group(ids: Sequence[int]) -> Cmd:
+    return Cmd('create_group', {'ids': ids})
+
+
+def ungroup(id: int) -> Cmd:
+    return Cmd('ungroup', {'id': id})
+
+
+def move_to_group(id: int, group: int | None = None) -> Cmd:
+    return Cmd('move_to_group', {'id': id, 'group': group})
+
+
+def get_group(id: int) -> Cmd:
+    return Cmd('get_group', {'id': id})
+
+
+def get_group_members(id: int) -> Cmd:
+    return Cmd('get_group_members', {'id': id})
+
+
+def set_group_outline(width: int, color: int | str) -> Cmd:
+    return Cmd('set_group_outline', {'width': width, 'color': color})
+
+
+def set_group_outline_of(id: int, width: int | None = None, color: int | str | None = None) -> Cmd:
+    return Cmd('set_group_outline_of', {'id': id, 'width': width, 'color': color})
+
+
+def focus_parent() -> Cmd:
+    return Cmd('focus_parent', {})
+
+
+def focus_child() -> Cmd:
+    return Cmd('focus_child', {})

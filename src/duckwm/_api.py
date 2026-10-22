@@ -242,6 +242,12 @@ class Api:
     def resize_focused_corner(self, dx: int, dy: int) -> Any:
         return self.run(cmd.resize_focused_corner(dx, dy))[0]
 
+    def set_zoom(self, zoom: float) -> Any:
+        return self.run(cmd.set_zoom(zoom))[0]
+
+    def get_zoom(self) -> Any:
+        return self.run(cmd.get_zoom())[0]
+
     def get_window_class(self, id: int) -> Any:
         return self.run(cmd.get_window_class(id))[0]
 
@@ -526,3 +532,42 @@ class Api:
 
     def set_arranger_index(self, index: int) -> Any:
         return self.run(cmd.set_arranger_index(index))[0]
+
+    def get_outputs(self) -> Any:
+        return self.run(cmd.get_outputs())[0]
+
+    def focus_output(self, dir: Literal['left', 'right', 'up', 'down'] | int) -> Any:
+        return self.run(cmd.focus_output(dir))[0]
+
+    def send_to_output(self, id: int, dir: Literal['left', 'right', 'up', 'down'] | int) -> Any:
+        return self.run(cmd.send_to_output(id, dir))[0]
+
+    def get_output_states(self) -> Any:
+        return self.run(cmd.get_output_states())[0]
+
+    def create_group(self, ids: Sequence[int]) -> Any:
+        return self.run(cmd.create_group(ids))[0]
+
+    def ungroup(self, id: int) -> Any:
+        return self.run(cmd.ungroup(id))[0]
+
+    def move_to_group(self, id: int, group: int | None = None) -> Any:
+        return self.run(cmd.move_to_group(id, group))[0]
+
+    def get_group(self, id: int) -> Any:
+        return self.run(cmd.get_group(id))[0]
+
+    def get_group_members(self, id: int) -> Any:
+        return self.run(cmd.get_group_members(id))[0]
+
+    def set_group_outline(self, width: int, color: int | str) -> Any:
+        return self.run(cmd.set_group_outline(width, color))[0]
+
+    def set_group_outline_of(self, id: int, width: int | None = None, color: int | str | None = None) -> Any:
+        return self.run(cmd.set_group_outline_of(id, width, color))[0]
+
+    def focus_parent(self) -> Any:
+        return self.run(cmd.focus_parent())[0]
+
+    def focus_child(self) -> Any:
+        return self.run(cmd.focus_child())[0]
