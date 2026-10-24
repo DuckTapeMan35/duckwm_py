@@ -290,6 +290,9 @@ class Api:
     def scratchpad_hide(self, id: int) -> Any:
         return self.run(cmd.scratchpad_hide(id))[0]
 
+    def get_scratchpad(self) -> Any:
+        return self.run(cmd.get_scratchpad())[0]
+
     def add_rule(self, callback: CallbackLike) -> Any:
         return self.run(cmd.add_rule(callback))[0]
 
@@ -349,6 +352,9 @@ class Api:
 
     def unbind(self, mods: int | str, key: str) -> Any:
         return self.run(cmd.unbind(mods, key))[0]
+
+    def get_keybinds(self) -> Any:
+        return self.run(cmd.get_keybinds())[0]
 
     def read_line(self, prompt: str, callback: CallbackLike, initial: str | None = None) -> Any:
         return self.run(cmd.read_line(prompt, callback, initial))[0]

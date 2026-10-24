@@ -374,6 +374,10 @@ def scratchpad_hide(id: int) -> Cmd:
     return Cmd('scratchpad_hide', {'id': id})
 
 
+def get_scratchpad() -> Cmd:
+    return Cmd('get_scratchpad', {})
+
+
 def add_rule(callback: CallbackLike) -> Cmd:
     return Cmd('add_rule', {'callback': callback})
 
@@ -456,6 +460,10 @@ def unbind(mods: int | str, key: str) -> Cmd:
 
 def bind(mods: int | str, key: str, callback: CallbackLike) -> Cmd:
     return Cmd('bind', {'mods': mods, 'key': key, 'callback': callback})
+
+
+def get_keybinds() -> Cmd:
+    return Cmd('get_keybinds', {})
 
 
 def read_line(prompt: str, callback: CallbackLike, initial: str | None = None) -> Cmd:
