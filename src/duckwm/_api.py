@@ -533,6 +533,9 @@ class Api:
     def set_arranger_index(self, index: int) -> Any:
         return self.run(cmd.set_arranger_index(index))[0]
 
+    def print_graph_pretty(self, cols: int | None = None, rows: int | None = None) -> Any:
+        return self.run(cmd.print_graph_pretty(cols, rows))[0]
+
     def get_outputs(self) -> Any:
         return self.run(cmd.get_outputs())[0]
 

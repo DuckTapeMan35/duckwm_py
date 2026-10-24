@@ -702,6 +702,10 @@ def set_arranger_index(index: int) -> Cmd:
     return Cmd('set_arranger_index', {'index': index})
 
 
+def print_graph_pretty(cols: int | None = None, rows: int | None = None) -> Cmd:
+    return Cmd('print_graph_pretty', {'cols': cols, 'rows': rows})
+
+
 def get_outputs() -> Cmd:
     return Cmd('get_outputs', {})
 
