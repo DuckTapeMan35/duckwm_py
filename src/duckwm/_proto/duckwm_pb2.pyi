@@ -2921,7 +2921,9 @@ class Call(_message.Message):
 
     CALLBACK_FIELD_NUMBER: _builtins.int
     ARGS_FIELD_NUMBER: _builtins.int
+    NESTED_FIELD_NUMBER: _builtins.int
     callback: _builtins.int
+    nested: _builtins.bool
     @_builtins.property
     def args(self) -> Global___CallArgs: ...
     def __init__(
@@ -2929,10 +2931,11 @@ class Call(_message.Message):
         *,
         callback: _builtins.int = ...,
         args: Global___CallArgs | None = ...,
+        nested: _builtins.bool = ...,
     ) -> None: ...
     _HasFieldArgType: _TypeAlias = _typing.Literal["args", b"args"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["args", b"args", "callback", b"callback"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["args", b"args", "callback", b"callback", "nested", b"nested"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
 Global___Call: _TypeAlias = Call  # noqa: Y015
