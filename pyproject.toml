@@ -13,3 +13,8 @@ license = "MIT"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/duckwm"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

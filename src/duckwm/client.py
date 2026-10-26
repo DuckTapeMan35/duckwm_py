@@ -65,7 +65,6 @@ class Client(Api):
         self.close()
 
     # ---- requests ----
-
     def run(self, *cmds: CommandLike) -> list[Any]:
         """Run the commands as one transaction; one result per command.
 
@@ -74,15 +73,23 @@ class Client(Api):
         """
         req = pb.Request(commands=[c for x in cmds for c in encode_all(self, x)])
         self._conn.send(pb.ClientMessage(request=req))
+        # A call not set off by this request (not nested) crossed it on the
+        # wire: duckwm runs the request inside that call and answers it first,
+        # so the call is handled once the answer is in.
+        crossed: list[pb.Call] = []
         while True:
             msg = self._conn.recv()
-            match msg.WhichOneof("kind"):
-                case "response":
-                    if msg.response.error:
-                        raise Rejected(msg.response.error)
-                    return [from_value(v) for v in msg.response.results]
-                case "call":
-                    self._handle_call(msg.call)
+            if msg.WhichOneof("kind") == "response":
+                break
+            if msg.call.nested:
+                self._handle_call(msg.call)
+            else:
+                crossed.append(msg.call)
+        for call in crossed:
+            self._handle_call(call)
+        if msg.response.error:
+            raise Rejected(msg.response.error)
+        return [from_value(v) for v in msg.response.results]
 
     def serve(self) -> None:
         """Answer duckwm's calls until the connection closes (raises Closed)."""
@@ -121,7 +128,7 @@ class Client(Api):
 
     def callback(self, v: CallbackLike) -> pb.Callback:
         """A callback for duckwm to call: a function (key: fn(), rule: fn(event, id),
-        arranger: fn(snapshot)), an Arranger (its factory), or an existing id."""
+        arranger: fn(snapshot)), read_line: fn(text), an Arranger (its factory), or an existing id."""
         if isinstance(v, pb.Callback):
             return v
         if isinstance(v, int):
@@ -170,6 +177,8 @@ class Client(Api):
                     return _as_reply(fn(args.rule.event, args.rule.id))
                 case "arranger":
                     return _as_reply(fn(Snapshot(args.arranger)))
+                case "line":
+                    return _as_reply(fn(args.line.text))
                 case _:
                     return _as_reply(fn())
 

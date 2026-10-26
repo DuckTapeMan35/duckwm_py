@@ -160,7 +160,7 @@ def track(s: Snapshot, old: Iterable[Any]) -> list[int]:
         if w in out:
             continue
         pos = len(out)
-        if s.event == "map" and w == s.id and s.prev_id in out:
+        if s.event in ("pre_map", "map") and w == s.id and s.prev_id in out:
             pos = out.index(s.prev_id) + 1
         out.insert(pos, w)
     return out

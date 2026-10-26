@@ -23,7 +23,12 @@ def socket_path() -> str:
 class Connection:
     """One connection to duckwm. Frames are a little-endian u32 length, then the message."""
 
-    def __init__(self, path: str | None = None) -> None:
+    def __init__(
+        self, path: str | None = None, *, sock: socket.socket | None = None
+    ) -> None:
+        if sock is not None:  # already connected (tests use a socketpair)
+            self.sock = sock
+            return
         self.sock = socket.socket(
             socket.AF_UNIX, socket.SOCK_STREAM | socket.SOCK_CLOEXEC
         )
