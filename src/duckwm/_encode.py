@@ -16,7 +16,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import Any, Protocol
 
 from google.protobuf import json_format
 from google.protobuf.descriptor import FieldDescriptor as FD
@@ -26,8 +26,12 @@ from ._proto import duckwm_pb2 as pb
 from .arrange import Arranger, RefLike, ref
 from .value import to_value
 
-if TYPE_CHECKING:
-    from .client import Client
+
+class Client(Protocol):
+    """What encoding needs from a client (blocking or duckwm.aio): somewhere
+    to register the functions and arrangers in Callback fields."""
+
+    def callback(self, v: CallbackLike) -> pb.Callback: ...
 
 
 @dataclass(frozen=True)

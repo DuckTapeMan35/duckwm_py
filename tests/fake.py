@@ -29,12 +29,9 @@ class Fake:
     def reject(self, why: str) -> None:
         self._send(pb.ServerMessage(response=pb.Response(error=why)))
 
-    def call(self, callback: int, nested: bool = True, **args: object) -> None:
-        """A call; args is one CallArgs field, e.g. key=pb.Empty()."""
+    def call(self, callback: int, args: pb.CallArgs, nested: bool = True) -> None:
         self._send(
-            pb.ServerMessage(
-                call=pb.Call(callback=callback, args=pb.CallArgs(**args), nested=nested)
-            )
+            pb.ServerMessage(call=pb.Call(callback=callback, args=args, nested=nested))
         )
 
     def hang_up(self) -> None:
@@ -52,7 +49,7 @@ class Fake:
         """The next request's commands, by name."""
         msg = self.recv()
         assert msg.WhichOneof("kind") == "request", msg
-        return [c.WhichOneof("kind") for c in msg.request.commands]
+        return [str(c.WhichOneof("kind")) for c in msg.request.commands]
 
     def commands(self) -> list[pb.Command]:
         msg = self.recv()

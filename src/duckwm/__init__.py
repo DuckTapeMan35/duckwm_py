@@ -3,6 +3,7 @@
 from . import cmd
 from ._encode import Cmd
 from ._forever import forever
+from ._mods import KeyCombo
 from ._reply import Reply
 from ._wire import Closed
 from .arrange import (
@@ -21,7 +22,7 @@ from .arrange import (
     split,
     track,
 )
-from .client import Client, Rejected
+from .client import Client, Rejected, Workspace
 from .geometry import Rect
 from .tree import chunks, col, row
 
@@ -31,10 +32,12 @@ __all__ = [
     "Client",
     "Closed",
     "Cmd",
+    "KeyCombo",
     "Rect",
     "Rejected",
     "Reply",
     "Snapshot",
+    "Workspace",
     "arranger",
     "at",
     "chunks",

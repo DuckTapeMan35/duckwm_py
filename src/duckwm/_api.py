@@ -353,9 +353,6 @@ class Api:
     def unbind(self, mods: int | str, key: str) -> Any:
         return self.run(cmd.unbind(mods, key))[0]
 
-    def get_keybinds(self) -> Any:
-        return self.run(cmd.get_keybinds())[0]
-
     def read_line(self, prompt: str, callback: CallbackLike, initial: str | None = None) -> Any:
         return self.run(cmd.read_line(prompt, callback, initial))[0]
 
@@ -475,9 +472,6 @@ class Api:
 
     def get_workspace_positions(self) -> Any:
         return self.run(cmd.get_workspace_positions())[0]
-
-    def get_workspace_states(self) -> Any:
-        return self.run(cmd.get_workspace_states())[0]
 
     def get_current_workspace_position(self) -> Any:
         return self.run(cmd.get_current_workspace_position())[0]

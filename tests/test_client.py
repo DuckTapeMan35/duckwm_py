@@ -7,6 +7,8 @@ from duckwm._proto import duckwm_pb2 as pb
 
 from .fake import pair
 
+KEY = pb.CallArgs(key=pb.Empty())  # a key press
+
 
 def test_a_request_and_its_results():
     c, duck = pair()
@@ -35,7 +37,7 @@ def test_a_callback_with_a_nested_request():
     bind = duck.commands()[0].bind
     assert (bind.mods, bind.key) == (64, "u")
 
-    duck.call(bind.callback.id, key=pb.Empty())
+    duck.call(bind.callback.id, KEY)
     duck.respond(7)
     duck.hang_up()
     with pytest.raises(Closed):
@@ -52,7 +54,7 @@ def test_a_call_crossing_a_request():
     seen = []
     cb = c.callback(lambda: seen.append(c.get_focused()))
 
-    duck.call(cb.id, nested=False, key=pb.Empty())  # already on its way
+    duck.call(cb.id, KEY, nested=False)  # already on its way
     duck.respond(0.5)  # get_zoom's answer
     duck.respond(7)  # the callback's get_focused
     assert c.get_zoom() == 0.5
@@ -69,8 +71,8 @@ def test_failing_and_unknown_callbacks_still_answer():
         raise ValueError("nope")
 
     cb = c.callback(fails)
-    duck.call(cb.id, key=pb.Empty())
-    duck.call(999, key=pb.Empty())
+    duck.call(cb.id, KEY)
+    duck.call(999, KEY)
     duck.hang_up()
     with pytest.raises(Closed):
         c.serve()
@@ -83,9 +85,51 @@ def test_rules_and_read_line_get_their_arguments():
     got = []
     rule = c.callback(lambda event, id: got.append((event, id)))
     line = c.callback(lambda text: got.append(text))
-    duck.call(rule.id, rule=pb.CallArgsRule(event="map", id=4))
-    duck.call(line.id, line=pb.CallArgsLine(text="hello"))
+    duck.call(rule.id, pb.CallArgs(rule=pb.CallArgsRule(event="map", id=4)))
+    duck.call(line.id, pb.CallArgs(line=pb.CallArgsLine(text="hello")))
     duck.hang_up()
     with pytest.raises(Closed):
         c.serve()
     assert got == [("map", 4), "hello"]
+
+
+def test_combos():
+    from duckwm import KeyCombo
+
+    k = KeyCombo.parse("shift+Super+q")
+    assert (k.mods, k.key) == (65, "q")
+    assert str(k) == "super+shift+q"
+    assert str(KeyCombo.parse("Return")) == "Return"
+    with pytest.raises(ValueError):
+        KeyCombo.parse("hyper+q")
+    with pytest.raises(ValueError):
+        KeyCombo.parse("super+")
+
+
+def test_typed_keybinds_and_workspaces():
+    from duckwm import KeyCombo, Workspace
+
+    c, duck = pair()
+    duck.respond([{"mods": 65, "key": "q"}, {"mods": 64, "key": "Return"}])
+    assert c.get_keybinds() == [KeyCombo(65, "q"), KeyCombo(64, "Return")]
+    duck.respond(
+        [{"position": 1, "state": "focused"}, {"position": 2, "state": "inactive"}]
+    )
+    assert c.get_workspace_states() == [
+        Workspace(1, "focused"),
+        Workspace(2, "inactive"),
+    ]
+
+
+def test_dispatch_answers_whats_waiting_and_returns():
+    c, duck = pair()
+    presses = []
+    cb = c.callback(lambda: presses.append(1))
+    c.dispatch()  # nothing waiting: returns at once
+    duck.call(cb.id, KEY)
+    duck.call(cb.id, KEY)
+    c.dispatch()
+    assert presses == [1, 1]
+    duck.hang_up()
+    with pytest.raises(Closed):
+        c.dispatch()

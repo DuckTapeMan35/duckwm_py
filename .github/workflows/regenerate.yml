@@ -26,8 +26,10 @@ jobs:
       - name: Generate
         run: nix develop --command env DUCKWM_PROTO="$PWD/upstream/proto/duckwm.proto" ./scripts/gen
 
-      - name: The package still imports
-        run: nix develop --command python -c "import duckwm"
+      - name: The package still imports, and the tests pass
+        run: |
+          nix develop --command python -c "import duckwm, duckwm.aio"
+          nix develop --command python -m pytest -q
 
       - name: Commit if anything changed
         run: |

@@ -2,16 +2,19 @@
 
 import functools
 import os
+import select
+import socket
 import sys
 import traceback
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Self
 
 from . import cmd
 from ._api import Api
 from ._encode import CallbackLike, Cmd, CommandLike, encode_all
-from ._mods import parse_mods
+from ._mods import KeyCombo
 from ._proto import duckwm_pb2 as pb
 from ._reply import UNSET, Reply
 from ._wire import Closed, Connection
@@ -25,13 +28,35 @@ class Rejected(Exception):
 
 def parse_combo(combo: str) -> tuple[int, str]:
     """ "super+shift+a" -> (65, "a"). The key is the last part, as an xkb keysym name."""
-    mods, _, key = combo.rpartition("+")
-    if not key:
-        raise ValueError(f"missing key in {combo!r}")
-    return parse_mods(mods), key
+    k = KeyCombo.parse(combo)
+    return k.mods, k.key
+
+
+@dataclass(frozen=True)
+class Workspace:
+    """One workspace at the current level, from get_workspace_states."""
+
+    position: int  # 1-based
+    state: Literal["focused", "active", "inactive"]
 
 
 Handler = Callable[[pb.CallArgs], Reply | None]
+
+
+def platform_of(pid: int) -> Literal["x11", "river"]:
+    exe = os.path.basename(os.readlink(f"/proc/{pid}/exe"))
+    return "river" if "river" in exe else "x11"
+
+
+def first_connection(pid: int) -> bool:
+    """Whether this is the first to ask for duckwm process pid: a marker file
+    every client library shares."""
+    run = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
+    try:
+        (run / f"duckwm-started-{pid}").touch(exist_ok=False)
+        return True
+    except FileExistsError:
+        return False
 
 
 def _as_reply(result: Any) -> Reply:
@@ -49,8 +74,11 @@ class Client(Api):
     """A connection to duckwm. Every command is a method (c.focus(3)), run now;
     cmd.focus(3) is the same command as a value, for binds and batches."""
 
-    def __init__(self, path: str | None = None) -> None:
-        self._conn = Connection(path)
+    def __init__(
+        self, path: str | None = None, *, sock: socket.socket | None = None
+    ) -> None:
+        """Connect at path (default: socket_path()), or use an already connected sock."""
+        self._conn = Connection(path, sock=sock)
         self._handlers: dict[int, Handler] = {}
         self._factories: dict[Arranger, pb.Callback] = {}
         self._next_id = 1
@@ -98,24 +126,38 @@ class Client(Api):
             if msg.WhichOneof("kind") == "call":
                 self._handle_call(msg.call)
 
-    # ---- which duckwm ----
+    def fileno(self) -> int:
+        """The socket, for an event loop of your own (select, selectors...)."""
+        return self._conn.sock.fileno()
 
+    def dispatch(self) -> None:
+        """When fileno() is readable: answer the calls waiting, without
+        blocking for more. Raises Closed once duckwm has gone."""
+        while select.select([self._conn.sock], [], [], 0)[0]:
+            msg = self._conn.recv()
+            if msg.WhichOneof("kind") == "call":
+                self._handle_call(msg.call)
+
+    # ---- typed queries ----
+    def get_keybinds(self) -> list[KeyCombo]:
+        """Every bound key combination, once each."""
+        return [KeyCombo(b["mods"], b["key"]) for b in self.run(cmd.get_keybinds())[0]]
+
+    def get_workspace_states(self) -> list[Workspace]:
+        """The workspaces at the current level, in order."""
+        return [
+            Workspace(w["position"], w["state"])
+            for w in self.run(cmd.get_workspace_states())[0]
+        ]
+
+    # ---- which duckwm ----
     @functools.cached_property
     def platform(self) -> Literal["x11", "river"]:
-        """Which duckwm this is, from its executable's name (duckwm-river on Wayland)."""
-        exe = os.path.basename(os.readlink(f"/proc/{self._conn.peer_pid}/exe"))
-        return "river" if "river" in exe else "x11"
+        return platform_of(self._conn.peer_pid)
 
     @functools.cached_property
     def startup(self) -> bool:
-        """True for the first connection to this duckwm process, from any client
-        using this library: for things to do once per session, like autostart."""
-        run = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"))
-        try:
-            (run / f"duckwm-started-{self._conn.peer_pid}").touch(exist_ok=False)
-            return True
-        except FileExistsError:
-            return False
+        return first_connection(self._conn.peer_pid)
 
     # ---- callbacks ----
 
@@ -128,7 +170,8 @@ class Client(Api):
 
     def callback(self, v: CallbackLike) -> pb.Callback:
         """A callback for duckwm to call: a function (key: fn(), rule: fn(event, id),
-        arranger: fn(snapshot)), read_line: fn(text), an Arranger (its factory), or an existing id."""
+        read_line: fn(text), arranger: fn(snapshot)), an Arranger (its factory),
+        or an existing id."""
         if isinstance(v, pb.Callback):
             return v
         if isinstance(v, int):
