@@ -254,6 +254,14 @@ def get_all_windows() -> Cmd:
     return Cmd('get_all_windows', {})
 
 
+def set_name(id: int, name: str | None = None) -> Cmd:
+    return Cmd('set_name', {'id': id, 'name': name})
+
+
+def get_name(id: int) -> Cmd:
+    return Cmd('get_name', {'id': id})
+
+
 def screen_width() -> Cmd:
     return Cmd('screen_width', {})
 

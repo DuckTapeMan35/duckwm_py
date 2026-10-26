@@ -200,6 +200,12 @@ class Api:
     def get_all_windows(self) -> Any:
         return self.run(cmd.get_all_windows())[0]
 
+    def set_name(self, id: int, name: str | None = None) -> Any:
+        return self.run(cmd.set_name(id, name))[0]
+
+    def get_name(self, id: int) -> Any:
+        return self.run(cmd.get_name(id))[0]
+
     def screen_width(self) -> Any:
         return self.run(cmd.screen_width())[0]
 

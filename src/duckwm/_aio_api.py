@@ -200,6 +200,12 @@ class AsyncApi:
     async def get_all_windows(self) -> Any:
         return (await self.run(cmd.get_all_windows()))[0]
 
+    async def set_name(self, id: int, name: str | None = None) -> Any:
+        return (await self.run(cmd.set_name(id, name)))[0]
+
+    async def get_name(self, id: int) -> Any:
+        return (await self.run(cmd.get_name(id)))[0]
+
     async def screen_width(self) -> Any:
         return (await self.run(cmd.screen_width()))[0]
 
