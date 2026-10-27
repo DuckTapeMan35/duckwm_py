@@ -216,3 +216,24 @@ async def test_a_call_crossing_a_request():
     await duck.respond(7)
     assert (await duck.ret()).err == ""
     assert await zoom == 0.5
+
+
+@run
+async def test_within_adds_up_and_puts_the_scope_back():
+    c, duck = await pair()
+
+    async def config():
+        async with c.within("web"), c.within("chat"):
+            await c.get_zoom()
+
+    task = asyncio.create_task(config())
+    scopes = []
+    for answer in [None, None, "web", None, 1.0, None, None]:
+        cmd_ = (await duck.request())[0]
+        if cmd_.WhichOneof("kind") == "set_scope":
+            scopes.append(
+                cmd_.set_scope.path if cmd_.set_scope.HasField("path") else None
+            )
+        await duck.respond(answer)
+    await task
+    assert scopes == ["web", "web/chat", "web", None]

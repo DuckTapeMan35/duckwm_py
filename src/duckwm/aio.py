@@ -21,6 +21,7 @@ tasks they start belong to them too while they last.
 """
 
 import asyncio
+import contextlib
 import contextvars
 import functools
 import inspect
@@ -30,7 +31,7 @@ import struct
 import sys
 import traceback
 from collections import deque
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any, Literal, Self
 
@@ -42,7 +43,14 @@ from ._proto import duckwm_pb2 as pb
 from ._reply import UNSET, Reply
 from ._wire import MAX_FRAME, Closed, socket_path
 from .arrange import Arranger, Snapshot
-from .client import Rejected, Workspace, _as_reply, first_connection, platform_of
+from .client import (
+    Rejected,
+    Workspace,
+    _as_reply,
+    first_connection,
+    platform_of,
+    scope_path,
+)
 from .value import from_value, to_value
 
 Handler = Callable[[pb.CallArgs], Awaitable[Reply]]
@@ -366,9 +374,23 @@ class Client(AsyncApi):
     async def get_workspace_states(self) -> list[Workspace]:
         """The workspaces at the current level, in order."""
         return [
-            Workspace(w["position"], w["state"])
+            Workspace(w["position"], w["state"], w.get("id"))
             for w in (await self.run(cmd.get_workspace_states()))[0]
         ]
+
+    # ---- names ----
+    @contextlib.asynccontextmanager
+    async def within(self, path: str) -> AsyncIterator[None]:
+        """Binds, rules and settings made inside apply only in path
+        ("DP-1/web/chat"): async with c.within("web"): await c.bind(...).
+        Nested, the paths add up. The scope is the connection's, not the
+        task's: requests other tasks make meanwhile go into it too."""
+        outer = await self.get_scope()
+        await self.set_scope(scope_path(outer, path))
+        try:
+            yield
+        finally:
+            await self.set_scope(outer)
 
 
 def _adapt(fn: Callable[..., Any]) -> Handler:

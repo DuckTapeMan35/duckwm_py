@@ -133,3 +133,38 @@ def test_dispatch_answers_whats_waiting_and_returns():
     duck.hang_up()
     with pytest.raises(Closed):
         c.dispatch()
+
+
+def test_within_adds_up_and_puts_the_scope_back():
+    c, duck = pair()
+    # get_scope, set_scope, the inner get_scope and set_scope, get_zoom, then both put back.
+    for r in [None, None, "web", None, 1.0, None, None]:
+        duck.respond(r)
+    with c.within("web"), c.within("chat"):
+        c.get_zoom()
+    sent = [duck.commands()[0] for _ in range(7)]
+    scopes = [
+        (s.set_scope.path if s.set_scope.HasField("path") else None)
+        for s in sent
+        if s.WhichOneof("kind") == "set_scope"
+    ]
+    assert scopes == ["web", "web/chat", "web", None]
+
+
+def test_within_puts_the_scope_back_after_an_error():
+    c, duck = pair()
+    for r in ["DP-1", None, None]:
+        duck.respond(r)
+    with pytest.raises(RuntimeError), c.within("web"):
+        raise RuntimeError("boom")
+    assert duck.request() == ["get_scope"]
+    assert duck.commands()[0].set_scope.path == "DP-1/web"
+    assert duck.commands()[0].set_scope.path == "DP-1"
+
+
+def test_workspaces_have_their_ids():
+    from duckwm import Workspace
+
+    c, duck = pair()
+    duck.respond([{"position": 1, "state": "focused", "id": 12}])
+    assert c.get_workspace_states() == [Workspace(1, "focused", 12)]

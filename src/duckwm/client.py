@@ -1,12 +1,13 @@
 """The client: requests, callbacks, and answering duckwm's calls."""
 
+import contextlib
 import functools
 import os
 import select
 import socket
 import sys
 import traceback
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Self
@@ -38,6 +39,14 @@ class Workspace:
 
     position: int  # 1-based
     state: Literal["focused", "active", "inactive"]
+    id: int | None = (
+        None  # its node id, for set_name; None from a duckwm too old to say
+    )
+
+
+def scope_path(outer: str | None, path: str) -> str:
+    """within's path inside another: they add up."""
+    return f"{outer}/{path}" if outer else path
 
 
 Handler = Callable[[pb.CallArgs], Reply | None]
@@ -146,9 +155,23 @@ class Client(Api):
     def get_workspace_states(self) -> list[Workspace]:
         """The workspaces at the current level, in order."""
         return [
-            Workspace(w["position"], w["state"])
+            Workspace(w["position"], w["state"], w.get("id"))
             for w in self.run(cmd.get_workspace_states())[0]
         ]
+
+    # ---- names ----
+    @contextlib.contextmanager
+    def within(self, path: str) -> Iterator[None]:
+        """Binds, rules and settings made inside apply only in path
+        ("DP-1/web/chat"): with c.within("web"): c.bind(...). Nested, the
+        paths add up. The scope is this connection's, whatever makes the
+        requests; it's put back on the way out, even after an error."""
+        outer = self.get_scope()
+        self.set_scope(scope_path(outer, path))
+        try:
+            yield
+        finally:
+            self.set_scope(outer)
 
     # ---- which duckwm ----
     @functools.cached_property
@@ -160,7 +183,6 @@ class Client(Api):
         return first_connection(self._conn.peer_pid)
 
     # ---- callbacks ----
-
     def register(self, handler: Handler) -> pb.Callback:
         """A raw callback: handler gets the CallArgs, returns a Reply or None."""
         cid = self._next_id

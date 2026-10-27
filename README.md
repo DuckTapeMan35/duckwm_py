@@ -30,6 +30,9 @@ with Client() as c:
   `@arranger`, built from `row`/`col` trees, `Rect` and `track`.
 - **Typed queries**: `get_keybinds()` gives `KeyCombo`s (`str(k)` is
   `"super+shift+q"`), `get_workspace_states()` gives `Workspace`s.
+- **Names and scopes**: `c.set_name(id, "web")` names a node, `c.find("DP-1/web")`
+  finds it. `with c.within("web"): ...` (`async with` for asyncio) makes the
+  binds, rules and gaps set up inside apply only there.
 - **`forever(setup)`** runs a config for good: on every connection, setup then
   serve; it waits for duckwm when it's gone and backs off a broken config.
 - **Which duckwm**: `c.platform` (`"x11"` or `"river"`), and `c.startup`, true
