@@ -206,6 +206,12 @@ class AsyncApi:
     async def get_name(self, id: int) -> Any:
         return (await self.run(cmd.get_name(id)))[0]
 
+    async def find(self, path: str) -> Any:
+        return (await self.run(cmd.find(path)))[0]
+
+    async def get_path(self, id: int) -> Any:
+        return (await self.run(cmd.get_path(id)))[0]
+
     async def screen_width(self) -> Any:
         return (await self.run(cmd.screen_width()))[0]
 

@@ -262,6 +262,14 @@ def get_name(id: int) -> Cmd:
     return Cmd('get_name', {'id': id})
 
 
+def find(path: str) -> Cmd:
+    return Cmd('find', {'path': path})
+
+
+def get_path(id: int) -> Cmd:
+    return Cmd('get_path', {'id': id})
+
+
 def screen_width() -> Cmd:
     return Cmd('screen_width', {})
 

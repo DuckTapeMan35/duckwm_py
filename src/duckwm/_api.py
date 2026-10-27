@@ -206,6 +206,12 @@ class Api:
     def get_name(self, id: int) -> Any:
         return self.run(cmd.get_name(id))[0]
 
+    def find(self, path: str) -> Any:
+        return self.run(cmd.find(path))[0]
+
+    def get_path(self, id: int) -> Any:
+        return self.run(cmd.get_path(id))[0]
+
     def screen_width(self) -> Any:
         return self.run(cmd.screen_width())[0]
 
