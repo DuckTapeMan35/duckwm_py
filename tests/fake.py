@@ -34,6 +34,16 @@ class Fake:
             pb.ServerMessage(call=pb.Call(callback=callback, args=args, nested=nested))
         )
 
+    def event(
+        self, callback: int, topic: str, serial: int, id: int | None = None
+    ) -> None:
+        notice = pb.Notice(
+            topic=pb.Topic.Value(f"TOPIC_{topic.upper()}"), serial=serial
+        )
+        if id is not None:
+            notice.id = id
+        self._send(pb.ServerMessage(event=pb.Event(callback=callback, notice=notice)))
+
     def hang_up(self) -> None:
         self.sock.shutdown(socket.SHUT_WR)
 

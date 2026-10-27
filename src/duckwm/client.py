@@ -68,6 +68,13 @@ def first_connection(pid: int) -> bool:
         return False
 
 
+def notice_args(n: pb.Notice) -> tuple[str, int, int | None]:
+    """A subscription's arguments: topic ("scene", "focus", "names", "outputs"),
+    the scene serial, and the node it's about (or None)."""
+    topic = pb.Topic.Name(n.topic).removeprefix("TOPIC_").lower()
+    return topic, n.serial, n.id if n.HasField("id") else None
+
+
 def _as_reply(result: Any) -> Reply:
     """A callback may return a Reply, a command or a list of them, or nothing."""
     if isinstance(result, Reply):
@@ -114,26 +121,32 @@ class Client(Api):
         # wire: duckwm runs the request inside that call and answers it first,
         # so the call is handled once the answer is in.
         crossed: list[pb.Call] = []
+        # Events wait for the response too: what a subscriber does is
+        # requests of its own, which can't go out in the middle of this one.
+        events: list[pb.Event] = []
         while True:
             msg = self._conn.recv()
-            if msg.WhichOneof("kind") == "response":
+            kind = msg.WhichOneof("kind")
+            if kind == "response":
                 break
-            if msg.call.nested:
+            if kind == "event":
+                events.append(msg.event)
+            elif msg.call.nested:
                 self._handle_call(msg.call)
             else:
                 crossed.append(msg.call)
         for call in crossed:
             self._handle_call(call)
+        for event in events:
+            self._handle_event(event)
         if msg.response.error:
             raise Rejected(msg.response.error)
         return [from_value(v) for v in msg.response.results]
 
     def serve(self) -> None:
-        """Answer duckwm's calls until the connection closes (raises Closed)."""
+        """Answer duckwm's calls and events until the connection closes (raises Closed)."""
         while True:
-            msg = self._conn.recv()
-            if msg.WhichOneof("kind") == "call":
-                self._handle_call(msg.call)
+            self._handle(self._conn.recv())
 
     def fileno(self) -> int:
         """The socket, for an event loop of your own (select, selectors...)."""
@@ -143,9 +156,7 @@ class Client(Api):
         """When fileno() is readable: answer the calls waiting, without
         blocking for more. Raises Closed once duckwm has gone."""
         while select.select([self._conn.sock], [], [], 0)[0]:
-            msg = self._conn.recv()
-            if msg.WhichOneof("kind") == "call":
-                self._handle_call(msg.call)
+            self._handle(self._conn.recv())
 
     # ---- typed queries ----
     def get_keybinds(self) -> list[KeyCombo]:
@@ -192,7 +203,7 @@ class Client(Api):
 
     def callback(self, v: CallbackLike) -> pb.Callback:
         """A callback for duckwm to call: a function (key: fn(), rule: fn(event, id),
-        read_line: fn(text), arranger: fn(snapshot)), an Arranger (its factory),
+        read_line: fn(text), arranger: fn(snapshot), subscribe: fn(topic, serial, id)), an Arranger (its factory),
         or an existing id."""
         if isinstance(v, pb.Callback):
             return v
@@ -244,13 +255,14 @@ class Client(Api):
                     return _as_reply(fn(Snapshot(args.arranger)))
                 case "line":
                     return _as_reply(fn(args.line.text))
+                case "notice":
+                    return _as_reply(fn(*notice_args(args.notice)))
                 case _:
                     return _as_reply(fn())
 
         return handler
 
     # ---- duckwm calling us ----
-
     def _handle_call(self, call: pb.Call) -> None:
         ret = pb.Return()
         handler = self._handlers.get(call.callback)
@@ -273,6 +285,29 @@ class Client(Api):
                 traceback.print_exc(file=sys.stderr)
                 ret.err = f"{type(e).__name__}: {e}"
         self._conn.send(pb.ClientMessage(ret=ret))
+
+    def _handle(self, msg: pb.ServerMessage) -> None:
+        match msg.WhichOneof("kind"):
+            case "call":
+                self._handle_call(msg.call)
+            case "event":
+                self._handle_event(msg.event)
+
+    def _handle_event(self, event: pb.Event) -> None:
+        """A subscriber's handler. Nothing goes back: duckwm isn't waiting. The
+        commands it returns run as a request of their own; an error is printed,
+        there being no one to give it to."""
+        handler = self._handlers.get(event.callback)
+        if handler is None:
+            return
+        try:
+            r = handler(pb.CallArgs(notice=event.notice))
+            if r is not None and r.commands:
+                self.run(*r.commands)
+        except Closed:
+            raise
+        except Exception:  # noqa: BLE001 - nowhere to send it
+            traceback.print_exc(file=sys.stderr)
 
 
 __all__ = ["Client", "Closed", "Rejected", "parse_combo"]

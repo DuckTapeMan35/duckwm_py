@@ -33,6 +33,10 @@ with Client() as c:
 - **Names and scopes**: `c.set_name(id, "web")` names a node, `c.find("DP-1/web")`
   finds it. `with c.within("web"): ...` (`async with` for asyncio) makes the
   binds, rules and gaps set up inside apply only there.
+- **Subscriptions**: `c.subscribe("focus", fn)` calls `fn(topic, serial, id)`
+  after each change is committed (`"scene"`, `"focus"`, `"names"`,
+  `"outputs"`). duckwm doesn't wait for it; commands it returns run as a
+  request of their own. `get_scene()` and `get_layout(id)` say what's there.
 - **`forever(setup)`** runs a config for good: on every connection, setup then
   serve; it waits for duckwm when it's gone and backs off a broken config.
 - **Which duckwm**: `c.platform` (`"x11"` or `"river"`), and `c.startup`, true

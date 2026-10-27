@@ -168,3 +168,42 @@ def test_workspaces_have_their_ids():
     c, duck = pair()
     duck.respond([{"position": 1, "state": "focused", "id": 12}])
     assert c.get_workspace_states() == [Workspace(1, "focused", 12)]
+
+
+def test_a_subscriber_gets_its_events_after_the_response_and_answers_nothing():
+    c, duck = pair()
+    seen = []
+
+    def on(topic, serial, id):
+        seen.append((topic, serial, id))
+        return cmd.get_zoom() if topic == "focus" else None
+
+    duck.respond(1)
+    assert c.subscribe("focus", on) == 1
+    sub = duck.commands()[0].subscribe
+    assert sub.topic == pb.TOPIC_FOCUS
+
+    # Arriving while a request waits: handled once its response is in.
+    duck.event(sub.callback.id, "scene", 3)
+    duck.respond(0.5)  # get_zoom
+    assert c.get_zoom() == 0.5
+    assert seen == [("scene", 3, None)]
+    assert duck.request() == ["get_zoom"]
+
+    # From dispatch; its returned command goes out as a request of its own.
+    duck.event(sub.callback.id, "focus", 4, id=9)
+    duck.respond(1.0)  # the request the focus handler's command makes
+    c.dispatch()
+    assert seen[-1] == ("focus", 4, 9)
+    assert duck.request() == ["get_zoom"]  # no Return: only the request
+
+
+def test_a_failing_subscriber_is_reported_not_answered(capsys):
+    c, duck = pair()
+    duck.respond(1)
+    c.subscribe("names", lambda *_: 1 / 0)
+    cb = duck.commands()[0].subscribe.callback.id
+    duck.event(cb, "names", 2, id=5)
+    duck.event(999, "names", 2, id=5)  # nobody's: dropped
+    c.dispatch()
+    assert "ZeroDivisionError" in capsys.readouterr().err

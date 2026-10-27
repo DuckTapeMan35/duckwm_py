@@ -48,6 +48,7 @@ from .client import (
     Workspace,
     _as_reply,
     first_connection,
+    notice_args,
     platform_of,
     scope_path,
 )
@@ -94,7 +95,6 @@ class _Conn:
         self.reading = asyncio.create_task(self._read())
 
     # ---- what may go out ----
-
     def active(self) -> int:
         """Who may send now: the innermost call, or the top level."""
         return self.frames[-1] if self.frames else 0
@@ -134,7 +134,6 @@ class _Conn:
         self.writer.write(struct.pack("<I", len(body)) + body)
 
     # ---- what comes in ----
-
     async def _read(self) -> None:
         try:
             while True:
@@ -178,6 +177,32 @@ class _Conn:
                 frame = self.next_frame
                 self.frames.append(frame)
                 self._call(frame, call)
+            case "event":
+                self._event(msg.event)
+
+    def _event(self, event: pb.Event) -> None:
+        """A subscriber's handler, in a task at the top level: duckwm isn't
+        waiting, and what it does is requests of its own. Its returned
+        commands run as one; an error is printed, there being no one to give it to."""
+        handler = self.handlers.get(event.callback)
+        if handler is None:
+            return
+
+        async def run() -> None:
+            try:
+                r = await handler(pb.CallArgs(notice=event.notice))
+                if r.commands:
+                    await self.client.run(*r.commands)
+            except Closed:
+                return
+            except Exception:  # noqa: BLE001 - nowhere to send it
+                traceback.print_exc(file=sys.stderr)
+
+        ctx = contextvars.copy_context()
+        ctx.run(_scope.set, 0)
+        task = asyncio.get_running_loop().create_task(run(), context=ctx)
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
 
     def _call(self, frame: int, call: pb.Call) -> None:
         """Run the callback in a task of its own, in its frame's scope."""
@@ -313,7 +338,7 @@ class Client(AsyncApi):
 
     def callback(self, v: CallbackLike) -> pb.Callback:
         """A callback for duckwm to call: a function or coroutine function (key:
-        fn(), rule: fn(event, id), read_line: fn(text), arranger: fn(snapshot)),
+        fn(), rule: fn(event, id), read_line: fn(text), arranger: fn(snapshot), subscribe: fn(topic, serial, id)),
         an Arranger (its factory), or an existing id."""
         if isinstance(v, pb.Callback):
             return v
@@ -405,6 +430,8 @@ def _adapt(fn: Callable[..., Any]) -> Handler:
                 r = fn(Snapshot(args.arranger))
             case "line":
                 r = fn(args.line.text)
+            case "notice":
+                r = fn(*notice_args(args.notice))
             case _:
                 r = fn()
         if inspect.isawaitable(r):

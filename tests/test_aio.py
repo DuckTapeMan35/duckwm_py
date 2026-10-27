@@ -59,6 +59,13 @@ class Fake:
         await self.send(pb.ServerMessage(call=call))
 
 
+def notice(topic: str, serial: int, id: int | None = None) -> pb.Notice:
+    n = pb.Notice(topic=pb.Topic.Value(f"TOPIC_{topic.upper()}"), serial=serial)
+    if id is not None:
+        n.id = id
+    return n
+
+
 async def pair() -> tuple[aio.Client, Fake]:
     a, b = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
     c = await aio.Client.connect(sock=a)
@@ -237,3 +244,26 @@ async def test_within_adds_up_and_puts_the_scope_back():
         await duck.respond(answer)
     await task
     assert scopes == ["web", "web/chat", "web", None]
+
+
+@run
+async def test_a_subscriber_gets_its_events_and_answers_nothing():
+    c, duck = await pair()
+    seen = []
+
+    async def on(topic, serial, id):
+        seen.append((topic, serial, id))
+        return cmd.get_zoom()
+
+    sub = asyncio.create_task(c.subscribe("focus", on))
+    cb = (await duck.request())[0].subscribe.callback.id
+    await duck.respond(1)
+    assert await sub == 1
+
+    await duck.send(
+        pb.ServerMessage(event=pb.Event(callback=cb, notice=notice("focus", 7, 3)))
+    )
+    # Its returned command arrives as a request, not a Return.
+    assert (await duck.request())[0].WhichOneof("kind") == "get_zoom"
+    await duck.respond(1.0)
+    assert seen == [("focus", 7, 3)]
