@@ -524,8 +524,8 @@ class Api:
     def eval(self, source: str) -> Any:
         return self.run(cmd.eval(source))[0]
 
-    def get_layout(self) -> Any:
-        return self.run(cmd.get_layout())[0]
+    def get_layout(self, id: int | None = None) -> Any:
+        return self.run(cmd.get_layout(id))[0]
 
     def set_layout(self, layout: pb.LayoutSpec | list[pb.NodeSpec]) -> Any:
         return self.run(cmd.set_layout(layout))[0]
@@ -553,6 +553,9 @@ class Api:
 
     def print_graph_pretty(self, cols: int | None = None, rows: int | None = None) -> Any:
         return self.run(cmd.print_graph_pretty(cols, rows))[0]
+
+    def get_scene(self) -> Any:
+        return self.run(cmd.get_scene())[0]
 
     def get_outputs(self) -> Any:
         return self.run(cmd.get_outputs())[0]
@@ -592,3 +595,9 @@ class Api:
 
     def focus_child(self) -> Any:
         return self.run(cmd.focus_child())[0]
+
+    def subscribe(self, topic: Literal['scene', 'focus', 'names', 'outputs'] | int, callback: CallbackLike) -> Any:
+        return self.run(cmd.subscribe(topic, callback))[0]
+
+    def unsubscribe(self, id: int) -> Any:
+        return self.run(cmd.unsubscribe(id))[0]

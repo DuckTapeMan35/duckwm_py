@@ -190,6 +190,25 @@ WORKSPACE_SWITCH_MODE_NONE: WorkspaceSwitchMode.ValueType  # 0
 WORKSPACE_SWITCH_MODE_PREVIOUS: WorkspaceSwitchMode.ValueType  # 1
 Global___WorkspaceSwitchMode: _TypeAlias = WorkspaceSwitchMode  # noqa: Y015
 
+class _Topic:
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
+
+class _TopicEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_Topic.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
+    TOPIC_SCENE: _Topic.ValueType  # 0
+    TOPIC_FOCUS: _Topic.ValueType  # 1
+    TOPIC_NAMES: _Topic.ValueType  # 2
+    TOPIC_OUTPUTS: _Topic.ValueType  # 3
+
+class Topic(_Topic, metaclass=_TopicEnumTypeWrapper): ...
+
+TOPIC_SCENE: Topic.ValueType  # 0
+TOPIC_FOCUS: Topic.ValueType  # 1
+TOPIC_NAMES: Topic.ValueType  # 2
+TOPIC_OUTPUTS: Topic.ValueType  # 3
+Global___Topic: _TypeAlias = Topic  # noqa: Y015
+
 class _ArrangerEvent:
     ValueType = _typing.NewType("ValueType", _builtins.int)
     V: _TypeAlias = ValueType  # noqa: Y015
@@ -225,29 +244,33 @@ Global___Empty: _TypeAlias = Empty  # noqa: Y015
 
 @_typing.final
 class ServerMessage(_message.Message):
-    """What duckwm sends: the answer to a Request, or a Call to one of the
-    client's callbacks.
+    """What duckwm sends: the answer to a Request, a Call to one of the
+    client's callbacks, or an Event for a subscriber (not answered).
     """
 
     DESCRIPTOR: _descriptor.Descriptor
 
     RESPONSE_FIELD_NUMBER: _builtins.int
     CALL_FIELD_NUMBER: _builtins.int
+    EVENT_FIELD_NUMBER: _builtins.int
     @_builtins.property
     def response(self) -> Global___Response: ...
     @_builtins.property
     def call(self) -> Global___Call: ...
+    @_builtins.property
+    def event(self) -> Global___Event: ...
     def __init__(
         self,
         *,
         response: Global___Response | None = ...,
         call: Global___Call | None = ...,
+        event: Global___Event | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["call", b"call", "kind", b"kind", "response", b"response"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["call", b"call", "event", b"event", "kind", b"kind", "response", b"response"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["call", b"call", "kind", b"kind", "response", b"response"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["call", b"call", "event", b"event", "kind", b"kind", "response", b"response"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
-    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["response", "call"]  # noqa: Y015
+    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["response", "call", "event"]  # noqa: Y015
     _WhichOneofArgType_kind: _TypeAlias = _typing.Literal["kind", b"kind"]  # noqa: Y015
     def WhichOneof(self, oneof_group: _WhichOneofArgType_kind) -> _WhichOneofReturnType_kind | None: ...
 
@@ -2090,6 +2113,27 @@ class Eval(_message.Message):
 Global___Eval: _TypeAlias = Eval  # noqa: Y015
 
 @_typing.final
+class GetLayout(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    ID_FIELD_NUMBER: _builtins.int
+    id: _builtins.int
+    def __init__(
+        self,
+        *,
+        id: _builtins.int | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_id", b"_id", "id", b"id"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_id", b"_id", "id", b"id"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__id: _TypeAlias = _typing.Literal["id"]  # noqa: Y015
+    _WhichOneofArgType__id: _TypeAlias = _typing.Literal["_id", b"_id"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__id) -> _WhichOneofReturnType__id | None: ...
+
+Global___GetLayout: _TypeAlias = GetLayout  # noqa: Y015
+
+@_typing.final
 class Ref(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
@@ -2704,6 +2748,44 @@ class SetGroupOutlineOf(_message.Message):
 Global___SetGroupOutlineOf: _TypeAlias = SetGroupOutlineOf  # noqa: Y015
 
 @_typing.final
+class Subscribe(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    TOPIC_FIELD_NUMBER: _builtins.int
+    CALLBACK_FIELD_NUMBER: _builtins.int
+    topic: Global___Topic.ValueType
+    @_builtins.property
+    def callback(self) -> Global___Callback: ...
+    def __init__(
+        self,
+        *,
+        topic: Global___Topic.ValueType = ...,
+        callback: Global___Callback | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["callback", b"callback"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["callback", b"callback", "topic", b"topic"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+
+Global___Subscribe: _TypeAlias = Subscribe  # noqa: Y015
+
+@_typing.final
+class Unsubscribe(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    ID_FIELD_NUMBER: _builtins.int
+    id: _builtins.int
+    def __init__(
+        self,
+        *,
+        id: _builtins.int = ...,
+    ) -> None: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["id", b"id"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+
+Global___Unsubscribe: _TypeAlias = Unsubscribe  # noqa: Y015
+
+@_typing.final
 class Request(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
@@ -2939,6 +3021,33 @@ class CallArgsLine(_message.Message):
 Global___CallArgsLine: _TypeAlias = CallArgsLine  # noqa: Y015
 
 @_typing.final
+class Notice(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    TOPIC_FIELD_NUMBER: _builtins.int
+    SERIAL_FIELD_NUMBER: _builtins.int
+    ID_FIELD_NUMBER: _builtins.int
+    topic: Global___Topic.ValueType
+    serial: _builtins.int
+    id: _builtins.int
+    def __init__(
+        self,
+        *,
+        topic: Global___Topic.ValueType = ...,
+        serial: _builtins.int = ...,
+        id: _builtins.int | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["_id", b"_id", "id", b"id"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["_id", b"_id", "id", b"id", "serial", b"serial", "topic", b"topic"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType__id: _TypeAlias = _typing.Literal["id"]  # noqa: Y015
+    _WhichOneofArgType__id: _TypeAlias = _typing.Literal["_id", b"_id"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType__id) -> _WhichOneofReturnType__id | None: ...
+
+Global___Notice: _TypeAlias = Notice  # noqa: Y015
+
+@_typing.final
 class CallArgs(_message.Message):
     DESCRIPTOR: _descriptor.Descriptor
 
@@ -2947,6 +3056,7 @@ class CallArgs(_message.Message):
     ARRANGER_FIELD_NUMBER: _builtins.int
     FACTORY_FIELD_NUMBER: _builtins.int
     LINE_FIELD_NUMBER: _builtins.int
+    NOTICE_FIELD_NUMBER: _builtins.int
     @_builtins.property
     def key(self) -> Global___Empty: ...
     @_builtins.property
@@ -2957,6 +3067,8 @@ class CallArgs(_message.Message):
     def factory(self) -> Global___Empty: ...
     @_builtins.property
     def line(self) -> Global___CallArgsLine: ...
+    @_builtins.property
+    def notice(self) -> Global___Notice: ...
     def __init__(
         self,
         *,
@@ -2965,12 +3077,13 @@ class CallArgs(_message.Message):
         arranger: Global___Snapshot | None = ...,
         factory: Global___Empty | None = ...,
         line: Global___CallArgsLine | None = ...,
+        notice: Global___Notice | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["arranger", b"arranger", "factory", b"factory", "key", b"key", "kind", b"kind", "line", b"line", "rule", b"rule"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["arranger", b"arranger", "factory", b"factory", "key", b"key", "kind", b"kind", "line", b"line", "notice", b"notice", "rule", b"rule"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["arranger", b"arranger", "factory", b"factory", "key", b"key", "kind", b"kind", "line", b"line", "rule", b"rule"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["arranger", b"arranger", "factory", b"factory", "key", b"key", "kind", b"kind", "line", b"line", "notice", b"notice", "rule", b"rule"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
-    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["key", "rule", "arranger", "factory", "line"]  # noqa: Y015
+    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["key", "rule", "arranger", "factory", "line", "notice"]  # noqa: Y015
     _WhichOneofArgType_kind: _TypeAlias = _typing.Literal["kind", b"kind"]  # noqa: Y015
     def WhichOneof(self, oneof_group: _WhichOneofArgType_kind) -> _WhichOneofReturnType_kind | None: ...
 
@@ -3000,6 +3113,28 @@ class Call(_message.Message):
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
 
 Global___Call: _TypeAlias = Call  # noqa: Y015
+
+@_typing.final
+class Event(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+
+    CALLBACK_FIELD_NUMBER: _builtins.int
+    NOTICE_FIELD_NUMBER: _builtins.int
+    callback: _builtins.int
+    @_builtins.property
+    def notice(self) -> Global___Notice: ...
+    def __init__(
+        self,
+        *,
+        callback: _builtins.int = ...,
+        notice: Global___Notice | None = ...,
+    ) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["notice", b"notice"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["callback", b"callback", "notice", b"notice"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+
+Global___Event: _TypeAlias = Event  # noqa: Y015
 
 @_typing.final
 class Command(_message.Message):
@@ -3187,6 +3322,7 @@ class Command(_message.Message):
     GET_ARRANGER_INDEX_FIELD_NUMBER: _builtins.int
     SET_ARRANGER_INDEX_FIELD_NUMBER: _builtins.int
     PRINT_GRAPH_PRETTY_FIELD_NUMBER: _builtins.int
+    GET_SCENE_FIELD_NUMBER: _builtins.int
     GET_OUTPUTS_FIELD_NUMBER: _builtins.int
     FOCUS_OUTPUT_FIELD_NUMBER: _builtins.int
     SEND_TO_OUTPUT_FIELD_NUMBER: _builtins.int
@@ -3200,6 +3336,8 @@ class Command(_message.Message):
     SET_GROUP_OUTLINE_OF_FIELD_NUMBER: _builtins.int
     FOCUS_PARENT_FIELD_NUMBER: _builtins.int
     FOCUS_CHILD_FIELD_NUMBER: _builtins.int
+    SUBSCRIBE_FIELD_NUMBER: _builtins.int
+    UNSUBSCRIBE_FIELD_NUMBER: _builtins.int
     @_builtins.property
     def focus_left(self) -> Global___Empty: ...
     @_builtins.property
@@ -3545,7 +3683,7 @@ class Command(_message.Message):
     @_builtins.property
     def eval(self) -> Global___Eval: ...
     @_builtins.property
-    def get_layout(self) -> Global___Empty: ...
+    def get_layout(self) -> Global___GetLayout: ...
     @_builtins.property
     def set_layout(self) -> Global___SetLayout: ...
     @_builtins.property
@@ -3564,6 +3702,8 @@ class Command(_message.Message):
     def set_arranger_index(self) -> Global___SetArrangerIndex: ...
     @_builtins.property
     def print_graph_pretty(self) -> Global___PrintGraphPretty: ...
+    @_builtins.property
+    def get_scene(self) -> Global___Empty: ...
     @_builtins.property
     def get_outputs(self) -> Global___Empty: ...
     @_builtins.property
@@ -3590,6 +3730,10 @@ class Command(_message.Message):
     def focus_parent(self) -> Global___Empty: ...
     @_builtins.property
     def focus_child(self) -> Global___Empty: ...
+    @_builtins.property
+    def subscribe(self) -> Global___Subscribe: ...
+    @_builtins.property
+    def unsubscribe(self) -> Global___Unsubscribe: ...
     def __init__(
         self,
         *,
@@ -3765,7 +3909,7 @@ class Command(_message.Message):
         exec_once: Global___ExecOnce | None = ...,
         reload_config: Global___Empty | None = ...,
         eval: Global___Eval | None = ...,
-        get_layout: Global___Empty | None = ...,
+        get_layout: Global___GetLayout | None = ...,
         set_layout: Global___SetLayout | None = ...,
         print_graph: Global___Empty | None = ...,
         set_arranger: Global___SetArranger | None = ...,
@@ -3775,6 +3919,7 @@ class Command(_message.Message):
         get_arranger_index: Global___Empty | None = ...,
         set_arranger_index: Global___SetArrangerIndex | None = ...,
         print_graph_pretty: Global___PrintGraphPretty | None = ...,
+        get_scene: Global___Empty | None = ...,
         get_outputs: Global___Empty | None = ...,
         focus_output: Global___FocusOutput | None = ...,
         send_to_output: Global___SendToOutput | None = ...,
@@ -3788,12 +3933,14 @@ class Command(_message.Message):
         set_group_outline_of: Global___SetGroupOutlineOf | None = ...,
         focus_parent: Global___Empty | None = ...,
         focus_child: Global___Empty | None = ...,
+        subscribe: Global___Subscribe | None = ...,
+        unsubscribe: Global___Unsubscribe | None = ...,
     ) -> None: ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal["above", b"above", "add_rule", b"add_rule", "align_bottom", b"align_bottom", "align_left", b"align_left", "align_right", b"align_right", "align_top", b"align_top", "below", b"below", "bind", b"bind", "bind_commands", b"bind_commands", "cleanup_left_behind", b"cleanup_left_behind", "clear_constraints", b"clear_constraints", "clear_node_border_side_colors", b"clear_node_border_side_colors", "clear_node_focused_border_color", b"clear_node_focused_border_color", "clear_node_indicator", b"clear_node_indicator", "clear_node_unfocused_border_color", b"clear_node_unfocused_border_color", "create_container", b"create_container", "create_empty_node", b"create_empty_node", "create_group", b"create_group", "create_nested_workspace", b"create_nested_workspace", "create_root_node", b"create_root_node", "destroy_container", b"destroy_container", "enter_nested", b"enter_nested", "enter_nested_by_id", b"enter_nested_by_id", "enter_workspace_by_id", b"enter_workspace_by_id", "equal_height", b"equal_height", "equal_width", b"equal_width", "eval", b"eval", "exchange_down", b"exchange_down", "exchange_left", b"exchange_left", "exchange_right", b"exchange_right", "exchange_up", b"exchange_up", "exec_once", b"exec_once", "find", b"find", "fixed_height", b"fixed_height", "fixed_ratio", b"fixed_ratio", "fixed_width", b"fixed_width", "fixed_x", b"fixed_x", "fixed_y", b"fixed_y", "float_above", b"float_above", "float_align_bottom", b"float_align_bottom", "float_align_left", b"float_align_left", "float_align_right", b"float_align_right", "float_align_top", b"float_align_top", "float_below", b"float_below", "float_clear_constraints", b"float_clear_constraints", "float_equal_height", b"float_equal_height", "float_equal_width", b"float_equal_width", "float_left_of", b"float_left_of", "float_right_of", b"float_right_of", "focus", b"focus", "focus_child", b"focus_child", "focus_down", b"focus_down", "focus_left", b"focus_left", "focus_output", b"focus_output", "focus_parent", b"focus_parent", "focus_right", b"focus_right", "focus_up", b"focus_up", "force_rgb_frames", b"force_rgb_frames", "get_all_windows", b"get_all_windows", "get_arranger_index", b"get_arranger_index", "get_arranger_name", b"get_arranger_name", "get_container_of", b"get_container_of", "get_current_level", b"get_current_level", "get_current_workspace", b"get_current_workspace", "get_current_workspace_position", b"get_current_workspace_position", "get_cursor_pos", b"get_cursor_pos", "get_cursor_relative_to_focused", b"get_cursor_relative_to_focused", "get_focused", b"get_focused", "get_group", b"get_group", "get_group_members", b"get_group_members", "get_keybinds", b"get_keybinds", "get_layout", b"get_layout", "get_mouse_node", b"get_mouse_node", "get_name", b"get_name", "get_node_border_side_colors", b"get_node_border_side_colors", "get_node_geometry", b"get_node_geometry", "get_node_info", b"get_node_info", "get_node_level", b"get_node_level", "get_node_type", b"get_node_type", "get_output_states", b"get_output_states", "get_outputs", b"get_outputs", "get_pan", b"get_pan", "get_path", b"get_path", "get_scope", b"get_scope", "get_scratchpad", b"get_scratchpad", "get_split_ratios", b"get_split_ratios", "get_urgent", b"get_urgent", "get_window_class", b"get_window_class", "get_window_name", b"get_window_name", "get_window_pid", b"get_window_pid", "get_work_area", b"get_work_area", "get_workspace", b"get_workspace", "get_workspace_positions", b"get_workspace_positions", "get_workspace_states", b"get_workspace_states", "get_workspaces_at_level", b"get_workspaces_at_level", "get_zoom", b"get_zoom", "grid_cell", b"grid_cell", "grid_cell_abs", b"grid_cell_abs", "hide_window", b"hide_window", "kill_client", b"kill_client", "kind", b"kind", "leave_nested", b"leave_nested", "left_of", b"left_of", "message", b"message", "move_to_group", b"move_to_group", "move_window_to_node", b"move_window_to_node", "pan_by", b"pan_by", "print_graph", b"print_graph", "print_graph_pretty", b"print_graph_pretty", "quit", b"quit", "read_line", b"read_line", "register_arranger", b"register_arranger", "register_swallow", b"register_swallow", "reload_config", b"reload_config", "remove_constraint", b"remove_constraint", "remove_node", b"remove_node", "remove_rule", b"remove_rule", "reparent", b"reparent", "resize_corner", b"resize_corner", "resize_edge", b"resize_edge", "resize_focused_corner", b"resize_focused_corner", "resize_focused_edge", b"resize_focused_edge", "right_of", b"right_of", "scratchpad_hide", b"scratchpad_hide", "scratchpad_show", b"scratchpad_show", "scratchpad_toggle", b"scratchpad_toggle", "screen_height", b"screen_height", "screen_width", b"screen_width", "send_to_output", b"send_to_output", "send_to_workspace", b"send_to_workspace", "set_animation", b"set_animation", "set_argb_frames", b"set_argb_frames", "set_arranger", b"set_arranger", "set_arranger_index", b"set_arranger_index", "set_autoclean", b"set_autoclean", "set_border_side_colors_focused_only", b"set_border_side_colors_focused_only", "set_border_width", b"set_border_width", "set_click_to_focus", b"set_click_to_focus", "set_cursor_theme", b"set_cursor_theme", "set_default_arranger", b"set_default_arranger", "set_default_focused_border_color", b"set_default_focused_border_color", "set_default_unfocused_border_color", b"set_default_unfocused_border_color", "set_default_urgent_border_color", b"set_default_urgent_border_color", "set_float_modifier", b"set_float_modifier", "set_float_move_button", b"set_float_move_button", "set_float_resize_button", b"set_float_resize_button", "set_floating", b"set_floating", "set_focus_follows_mouse", b"set_focus_follows_mouse", "set_fullscreen", b"set_fullscreen", "set_gaps", b"set_gaps", "set_gaps_workspace", b"set_gaps_workspace", "set_group_outline", b"set_group_outline", "set_group_outline_of", b"set_group_outline_of", "set_indicator_color", b"set_indicator_color", "set_keyboard_layout", b"set_keyboard_layout", "set_keyboard_layout_index", b"set_keyboard_layout_index", "set_layout", b"set_layout", "set_lock_horizontal_resize", b"set_lock_horizontal_resize", "set_lock_vertical_resize", b"set_lock_vertical_resize", "set_name", b"set_name", "set_node_border_side_color", b"set_node_border_side_color", "set_node_empty", b"set_node_empty", "set_node_focused_border_color", b"set_node_focused_border_color", "set_node_indicator", b"set_node_indicator", "set_node_unfocused_border_color", b"set_node_unfocused_border_color", "set_node_window", b"set_node_window", "set_pan", b"set_pan", "set_pan_button", b"set_pan_button", "set_pan_disabled", b"set_pan_disabled", "set_pan_modifier", b"set_pan_modifier", "set_preview_colors", b"set_preview_colors", "set_preview_colors_workspace", b"set_preview_colors_workspace", "set_preview_font", b"set_preview_font", "set_preview_font_workspace", b"set_preview_font_workspace", "set_preview_max_icon_size", b"set_preview_max_icon_size", "set_prompt_keys", b"set_prompt_keys", "set_reparent_strategy", b"set_reparent_strategy", "set_resize_modifier", b"set_resize_modifier", "set_scope", b"set_scope", "set_urgent", b"set_urgent", "set_virtual_size", b"set_virtual_size", "set_workspace_switch_mode", b"set_workspace_switch_mode", "set_zoom", b"set_zoom", "setenv", b"setenv", "show_window", b"show_window", "spawn", b"spawn", "split", b"split", "switch_to_workspace", b"switch_to_workspace", "toggle_floating", b"toggle_floating", "toggle_fullscreen", b"toggle_fullscreen", "unbind", b"unbind", "ungroup", b"ungroup", "unregister_node", b"unregister_node", "unregister_swallow", b"unregister_swallow", "warp_cursor", b"warp_cursor", "warp_cursor_to_node", b"warp_cursor_to_node"]  # noqa: Y015
+    _HasFieldArgType: _TypeAlias = _typing.Literal["above", b"above", "add_rule", b"add_rule", "align_bottom", b"align_bottom", "align_left", b"align_left", "align_right", b"align_right", "align_top", b"align_top", "below", b"below", "bind", b"bind", "bind_commands", b"bind_commands", "cleanup_left_behind", b"cleanup_left_behind", "clear_constraints", b"clear_constraints", "clear_node_border_side_colors", b"clear_node_border_side_colors", "clear_node_focused_border_color", b"clear_node_focused_border_color", "clear_node_indicator", b"clear_node_indicator", "clear_node_unfocused_border_color", b"clear_node_unfocused_border_color", "create_container", b"create_container", "create_empty_node", b"create_empty_node", "create_group", b"create_group", "create_nested_workspace", b"create_nested_workspace", "create_root_node", b"create_root_node", "destroy_container", b"destroy_container", "enter_nested", b"enter_nested", "enter_nested_by_id", b"enter_nested_by_id", "enter_workspace_by_id", b"enter_workspace_by_id", "equal_height", b"equal_height", "equal_width", b"equal_width", "eval", b"eval", "exchange_down", b"exchange_down", "exchange_left", b"exchange_left", "exchange_right", b"exchange_right", "exchange_up", b"exchange_up", "exec_once", b"exec_once", "find", b"find", "fixed_height", b"fixed_height", "fixed_ratio", b"fixed_ratio", "fixed_width", b"fixed_width", "fixed_x", b"fixed_x", "fixed_y", b"fixed_y", "float_above", b"float_above", "float_align_bottom", b"float_align_bottom", "float_align_left", b"float_align_left", "float_align_right", b"float_align_right", "float_align_top", b"float_align_top", "float_below", b"float_below", "float_clear_constraints", b"float_clear_constraints", "float_equal_height", b"float_equal_height", "float_equal_width", b"float_equal_width", "float_left_of", b"float_left_of", "float_right_of", b"float_right_of", "focus", b"focus", "focus_child", b"focus_child", "focus_down", b"focus_down", "focus_left", b"focus_left", "focus_output", b"focus_output", "focus_parent", b"focus_parent", "focus_right", b"focus_right", "focus_up", b"focus_up", "force_rgb_frames", b"force_rgb_frames", "get_all_windows", b"get_all_windows", "get_arranger_index", b"get_arranger_index", "get_arranger_name", b"get_arranger_name", "get_container_of", b"get_container_of", "get_current_level", b"get_current_level", "get_current_workspace", b"get_current_workspace", "get_current_workspace_position", b"get_current_workspace_position", "get_cursor_pos", b"get_cursor_pos", "get_cursor_relative_to_focused", b"get_cursor_relative_to_focused", "get_focused", b"get_focused", "get_group", b"get_group", "get_group_members", b"get_group_members", "get_keybinds", b"get_keybinds", "get_layout", b"get_layout", "get_mouse_node", b"get_mouse_node", "get_name", b"get_name", "get_node_border_side_colors", b"get_node_border_side_colors", "get_node_geometry", b"get_node_geometry", "get_node_info", b"get_node_info", "get_node_level", b"get_node_level", "get_node_type", b"get_node_type", "get_output_states", b"get_output_states", "get_outputs", b"get_outputs", "get_pan", b"get_pan", "get_path", b"get_path", "get_scene", b"get_scene", "get_scope", b"get_scope", "get_scratchpad", b"get_scratchpad", "get_split_ratios", b"get_split_ratios", "get_urgent", b"get_urgent", "get_window_class", b"get_window_class", "get_window_name", b"get_window_name", "get_window_pid", b"get_window_pid", "get_work_area", b"get_work_area", "get_workspace", b"get_workspace", "get_workspace_positions", b"get_workspace_positions", "get_workspace_states", b"get_workspace_states", "get_workspaces_at_level", b"get_workspaces_at_level", "get_zoom", b"get_zoom", "grid_cell", b"grid_cell", "grid_cell_abs", b"grid_cell_abs", "hide_window", b"hide_window", "kill_client", b"kill_client", "kind", b"kind", "leave_nested", b"leave_nested", "left_of", b"left_of", "message", b"message", "move_to_group", b"move_to_group", "move_window_to_node", b"move_window_to_node", "pan_by", b"pan_by", "print_graph", b"print_graph", "print_graph_pretty", b"print_graph_pretty", "quit", b"quit", "read_line", b"read_line", "register_arranger", b"register_arranger", "register_swallow", b"register_swallow", "reload_config", b"reload_config", "remove_constraint", b"remove_constraint", "remove_node", b"remove_node", "remove_rule", b"remove_rule", "reparent", b"reparent", "resize_corner", b"resize_corner", "resize_edge", b"resize_edge", "resize_focused_corner", b"resize_focused_corner", "resize_focused_edge", b"resize_focused_edge", "right_of", b"right_of", "scratchpad_hide", b"scratchpad_hide", "scratchpad_show", b"scratchpad_show", "scratchpad_toggle", b"scratchpad_toggle", "screen_height", b"screen_height", "screen_width", b"screen_width", "send_to_output", b"send_to_output", "send_to_workspace", b"send_to_workspace", "set_animation", b"set_animation", "set_argb_frames", b"set_argb_frames", "set_arranger", b"set_arranger", "set_arranger_index", b"set_arranger_index", "set_autoclean", b"set_autoclean", "set_border_side_colors_focused_only", b"set_border_side_colors_focused_only", "set_border_width", b"set_border_width", "set_click_to_focus", b"set_click_to_focus", "set_cursor_theme", b"set_cursor_theme", "set_default_arranger", b"set_default_arranger", "set_default_focused_border_color", b"set_default_focused_border_color", "set_default_unfocused_border_color", b"set_default_unfocused_border_color", "set_default_urgent_border_color", b"set_default_urgent_border_color", "set_float_modifier", b"set_float_modifier", "set_float_move_button", b"set_float_move_button", "set_float_resize_button", b"set_float_resize_button", "set_floating", b"set_floating", "set_focus_follows_mouse", b"set_focus_follows_mouse", "set_fullscreen", b"set_fullscreen", "set_gaps", b"set_gaps", "set_gaps_workspace", b"set_gaps_workspace", "set_group_outline", b"set_group_outline", "set_group_outline_of", b"set_group_outline_of", "set_indicator_color", b"set_indicator_color", "set_keyboard_layout", b"set_keyboard_layout", "set_keyboard_layout_index", b"set_keyboard_layout_index", "set_layout", b"set_layout", "set_lock_horizontal_resize", b"set_lock_horizontal_resize", "set_lock_vertical_resize", b"set_lock_vertical_resize", "set_name", b"set_name", "set_node_border_side_color", b"set_node_border_side_color", "set_node_empty", b"set_node_empty", "set_node_focused_border_color", b"set_node_focused_border_color", "set_node_indicator", b"set_node_indicator", "set_node_unfocused_border_color", b"set_node_unfocused_border_color", "set_node_window", b"set_node_window", "set_pan", b"set_pan", "set_pan_button", b"set_pan_button", "set_pan_disabled", b"set_pan_disabled", "set_pan_modifier", b"set_pan_modifier", "set_preview_colors", b"set_preview_colors", "set_preview_colors_workspace", b"set_preview_colors_workspace", "set_preview_font", b"set_preview_font", "set_preview_font_workspace", b"set_preview_font_workspace", "set_preview_max_icon_size", b"set_preview_max_icon_size", "set_prompt_keys", b"set_prompt_keys", "set_reparent_strategy", b"set_reparent_strategy", "set_resize_modifier", b"set_resize_modifier", "set_scope", b"set_scope", "set_urgent", b"set_urgent", "set_virtual_size", b"set_virtual_size", "set_workspace_switch_mode", b"set_workspace_switch_mode", "set_zoom", b"set_zoom", "setenv", b"setenv", "show_window", b"show_window", "spawn", b"spawn", "split", b"split", "subscribe", b"subscribe", "switch_to_workspace", b"switch_to_workspace", "toggle_floating", b"toggle_floating", "toggle_fullscreen", b"toggle_fullscreen", "unbind", b"unbind", "ungroup", b"ungroup", "unregister_node", b"unregister_node", "unregister_swallow", b"unregister_swallow", "unsubscribe", b"unsubscribe", "warp_cursor", b"warp_cursor", "warp_cursor_to_node", b"warp_cursor_to_node"]  # noqa: Y015
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal["above", b"above", "add_rule", b"add_rule", "align_bottom", b"align_bottom", "align_left", b"align_left", "align_right", b"align_right", "align_top", b"align_top", "below", b"below", "bind", b"bind", "bind_commands", b"bind_commands", "cleanup_left_behind", b"cleanup_left_behind", "clear_constraints", b"clear_constraints", "clear_node_border_side_colors", b"clear_node_border_side_colors", "clear_node_focused_border_color", b"clear_node_focused_border_color", "clear_node_indicator", b"clear_node_indicator", "clear_node_unfocused_border_color", b"clear_node_unfocused_border_color", "create_container", b"create_container", "create_empty_node", b"create_empty_node", "create_group", b"create_group", "create_nested_workspace", b"create_nested_workspace", "create_root_node", b"create_root_node", "destroy_container", b"destroy_container", "enter_nested", b"enter_nested", "enter_nested_by_id", b"enter_nested_by_id", "enter_workspace_by_id", b"enter_workspace_by_id", "equal_height", b"equal_height", "equal_width", b"equal_width", "eval", b"eval", "exchange_down", b"exchange_down", "exchange_left", b"exchange_left", "exchange_right", b"exchange_right", "exchange_up", b"exchange_up", "exec_once", b"exec_once", "find", b"find", "fixed_height", b"fixed_height", "fixed_ratio", b"fixed_ratio", "fixed_width", b"fixed_width", "fixed_x", b"fixed_x", "fixed_y", b"fixed_y", "float_above", b"float_above", "float_align_bottom", b"float_align_bottom", "float_align_left", b"float_align_left", "float_align_right", b"float_align_right", "float_align_top", b"float_align_top", "float_below", b"float_below", "float_clear_constraints", b"float_clear_constraints", "float_equal_height", b"float_equal_height", "float_equal_width", b"float_equal_width", "float_left_of", b"float_left_of", "float_right_of", b"float_right_of", "focus", b"focus", "focus_child", b"focus_child", "focus_down", b"focus_down", "focus_left", b"focus_left", "focus_output", b"focus_output", "focus_parent", b"focus_parent", "focus_right", b"focus_right", "focus_up", b"focus_up", "force_rgb_frames", b"force_rgb_frames", "get_all_windows", b"get_all_windows", "get_arranger_index", b"get_arranger_index", "get_arranger_name", b"get_arranger_name", "get_container_of", b"get_container_of", "get_current_level", b"get_current_level", "get_current_workspace", b"get_current_workspace", "get_current_workspace_position", b"get_current_workspace_position", "get_cursor_pos", b"get_cursor_pos", "get_cursor_relative_to_focused", b"get_cursor_relative_to_focused", "get_focused", b"get_focused", "get_group", b"get_group", "get_group_members", b"get_group_members", "get_keybinds", b"get_keybinds", "get_layout", b"get_layout", "get_mouse_node", b"get_mouse_node", "get_name", b"get_name", "get_node_border_side_colors", b"get_node_border_side_colors", "get_node_geometry", b"get_node_geometry", "get_node_info", b"get_node_info", "get_node_level", b"get_node_level", "get_node_type", b"get_node_type", "get_output_states", b"get_output_states", "get_outputs", b"get_outputs", "get_pan", b"get_pan", "get_path", b"get_path", "get_scope", b"get_scope", "get_scratchpad", b"get_scratchpad", "get_split_ratios", b"get_split_ratios", "get_urgent", b"get_urgent", "get_window_class", b"get_window_class", "get_window_name", b"get_window_name", "get_window_pid", b"get_window_pid", "get_work_area", b"get_work_area", "get_workspace", b"get_workspace", "get_workspace_positions", b"get_workspace_positions", "get_workspace_states", b"get_workspace_states", "get_workspaces_at_level", b"get_workspaces_at_level", "get_zoom", b"get_zoom", "grid_cell", b"grid_cell", "grid_cell_abs", b"grid_cell_abs", "hide_window", b"hide_window", "kill_client", b"kill_client", "kind", b"kind", "leave_nested", b"leave_nested", "left_of", b"left_of", "message", b"message", "move_to_group", b"move_to_group", "move_window_to_node", b"move_window_to_node", "pan_by", b"pan_by", "print_graph", b"print_graph", "print_graph_pretty", b"print_graph_pretty", "quit", b"quit", "read_line", b"read_line", "register_arranger", b"register_arranger", "register_swallow", b"register_swallow", "reload_config", b"reload_config", "remove_constraint", b"remove_constraint", "remove_node", b"remove_node", "remove_rule", b"remove_rule", "reparent", b"reparent", "resize_corner", b"resize_corner", "resize_edge", b"resize_edge", "resize_focused_corner", b"resize_focused_corner", "resize_focused_edge", b"resize_focused_edge", "right_of", b"right_of", "scratchpad_hide", b"scratchpad_hide", "scratchpad_show", b"scratchpad_show", "scratchpad_toggle", b"scratchpad_toggle", "screen_height", b"screen_height", "screen_width", b"screen_width", "send_to_output", b"send_to_output", "send_to_workspace", b"send_to_workspace", "set_animation", b"set_animation", "set_argb_frames", b"set_argb_frames", "set_arranger", b"set_arranger", "set_arranger_index", b"set_arranger_index", "set_autoclean", b"set_autoclean", "set_border_side_colors_focused_only", b"set_border_side_colors_focused_only", "set_border_width", b"set_border_width", "set_click_to_focus", b"set_click_to_focus", "set_cursor_theme", b"set_cursor_theme", "set_default_arranger", b"set_default_arranger", "set_default_focused_border_color", b"set_default_focused_border_color", "set_default_unfocused_border_color", b"set_default_unfocused_border_color", "set_default_urgent_border_color", b"set_default_urgent_border_color", "set_float_modifier", b"set_float_modifier", "set_float_move_button", b"set_float_move_button", "set_float_resize_button", b"set_float_resize_button", "set_floating", b"set_floating", "set_focus_follows_mouse", b"set_focus_follows_mouse", "set_fullscreen", b"set_fullscreen", "set_gaps", b"set_gaps", "set_gaps_workspace", b"set_gaps_workspace", "set_group_outline", b"set_group_outline", "set_group_outline_of", b"set_group_outline_of", "set_indicator_color", b"set_indicator_color", "set_keyboard_layout", b"set_keyboard_layout", "set_keyboard_layout_index", b"set_keyboard_layout_index", "set_layout", b"set_layout", "set_lock_horizontal_resize", b"set_lock_horizontal_resize", "set_lock_vertical_resize", b"set_lock_vertical_resize", "set_name", b"set_name", "set_node_border_side_color", b"set_node_border_side_color", "set_node_empty", b"set_node_empty", "set_node_focused_border_color", b"set_node_focused_border_color", "set_node_indicator", b"set_node_indicator", "set_node_unfocused_border_color", b"set_node_unfocused_border_color", "set_node_window", b"set_node_window", "set_pan", b"set_pan", "set_pan_button", b"set_pan_button", "set_pan_disabled", b"set_pan_disabled", "set_pan_modifier", b"set_pan_modifier", "set_preview_colors", b"set_preview_colors", "set_preview_colors_workspace", b"set_preview_colors_workspace", "set_preview_font", b"set_preview_font", "set_preview_font_workspace", b"set_preview_font_workspace", "set_preview_max_icon_size", b"set_preview_max_icon_size", "set_prompt_keys", b"set_prompt_keys", "set_reparent_strategy", b"set_reparent_strategy", "set_resize_modifier", b"set_resize_modifier", "set_scope", b"set_scope", "set_urgent", b"set_urgent", "set_virtual_size", b"set_virtual_size", "set_workspace_switch_mode", b"set_workspace_switch_mode", "set_zoom", b"set_zoom", "setenv", b"setenv", "show_window", b"show_window", "spawn", b"spawn", "split", b"split", "switch_to_workspace", b"switch_to_workspace", "toggle_floating", b"toggle_floating", "toggle_fullscreen", b"toggle_fullscreen", "unbind", b"unbind", "ungroup", b"ungroup", "unregister_node", b"unregister_node", "unregister_swallow", b"unregister_swallow", "warp_cursor", b"warp_cursor", "warp_cursor_to_node", b"warp_cursor_to_node"]  # noqa: Y015
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["above", b"above", "add_rule", b"add_rule", "align_bottom", b"align_bottom", "align_left", b"align_left", "align_right", b"align_right", "align_top", b"align_top", "below", b"below", "bind", b"bind", "bind_commands", b"bind_commands", "cleanup_left_behind", b"cleanup_left_behind", "clear_constraints", b"clear_constraints", "clear_node_border_side_colors", b"clear_node_border_side_colors", "clear_node_focused_border_color", b"clear_node_focused_border_color", "clear_node_indicator", b"clear_node_indicator", "clear_node_unfocused_border_color", b"clear_node_unfocused_border_color", "create_container", b"create_container", "create_empty_node", b"create_empty_node", "create_group", b"create_group", "create_nested_workspace", b"create_nested_workspace", "create_root_node", b"create_root_node", "destroy_container", b"destroy_container", "enter_nested", b"enter_nested", "enter_nested_by_id", b"enter_nested_by_id", "enter_workspace_by_id", b"enter_workspace_by_id", "equal_height", b"equal_height", "equal_width", b"equal_width", "eval", b"eval", "exchange_down", b"exchange_down", "exchange_left", b"exchange_left", "exchange_right", b"exchange_right", "exchange_up", b"exchange_up", "exec_once", b"exec_once", "find", b"find", "fixed_height", b"fixed_height", "fixed_ratio", b"fixed_ratio", "fixed_width", b"fixed_width", "fixed_x", b"fixed_x", "fixed_y", b"fixed_y", "float_above", b"float_above", "float_align_bottom", b"float_align_bottom", "float_align_left", b"float_align_left", "float_align_right", b"float_align_right", "float_align_top", b"float_align_top", "float_below", b"float_below", "float_clear_constraints", b"float_clear_constraints", "float_equal_height", b"float_equal_height", "float_equal_width", b"float_equal_width", "float_left_of", b"float_left_of", "float_right_of", b"float_right_of", "focus", b"focus", "focus_child", b"focus_child", "focus_down", b"focus_down", "focus_left", b"focus_left", "focus_output", b"focus_output", "focus_parent", b"focus_parent", "focus_right", b"focus_right", "focus_up", b"focus_up", "force_rgb_frames", b"force_rgb_frames", "get_all_windows", b"get_all_windows", "get_arranger_index", b"get_arranger_index", "get_arranger_name", b"get_arranger_name", "get_container_of", b"get_container_of", "get_current_level", b"get_current_level", "get_current_workspace", b"get_current_workspace", "get_current_workspace_position", b"get_current_workspace_position", "get_cursor_pos", b"get_cursor_pos", "get_cursor_relative_to_focused", b"get_cursor_relative_to_focused", "get_focused", b"get_focused", "get_group", b"get_group", "get_group_members", b"get_group_members", "get_keybinds", b"get_keybinds", "get_layout", b"get_layout", "get_mouse_node", b"get_mouse_node", "get_name", b"get_name", "get_node_border_side_colors", b"get_node_border_side_colors", "get_node_geometry", b"get_node_geometry", "get_node_info", b"get_node_info", "get_node_level", b"get_node_level", "get_node_type", b"get_node_type", "get_output_states", b"get_output_states", "get_outputs", b"get_outputs", "get_pan", b"get_pan", "get_path", b"get_path", "get_scene", b"get_scene", "get_scope", b"get_scope", "get_scratchpad", b"get_scratchpad", "get_split_ratios", b"get_split_ratios", "get_urgent", b"get_urgent", "get_window_class", b"get_window_class", "get_window_name", b"get_window_name", "get_window_pid", b"get_window_pid", "get_work_area", b"get_work_area", "get_workspace", b"get_workspace", "get_workspace_positions", b"get_workspace_positions", "get_workspace_states", b"get_workspace_states", "get_workspaces_at_level", b"get_workspaces_at_level", "get_zoom", b"get_zoom", "grid_cell", b"grid_cell", "grid_cell_abs", b"grid_cell_abs", "hide_window", b"hide_window", "kill_client", b"kill_client", "kind", b"kind", "leave_nested", b"leave_nested", "left_of", b"left_of", "message", b"message", "move_to_group", b"move_to_group", "move_window_to_node", b"move_window_to_node", "pan_by", b"pan_by", "print_graph", b"print_graph", "print_graph_pretty", b"print_graph_pretty", "quit", b"quit", "read_line", b"read_line", "register_arranger", b"register_arranger", "register_swallow", b"register_swallow", "reload_config", b"reload_config", "remove_constraint", b"remove_constraint", "remove_node", b"remove_node", "remove_rule", b"remove_rule", "reparent", b"reparent", "resize_corner", b"resize_corner", "resize_edge", b"resize_edge", "resize_focused_corner", b"resize_focused_corner", "resize_focused_edge", b"resize_focused_edge", "right_of", b"right_of", "scratchpad_hide", b"scratchpad_hide", "scratchpad_show", b"scratchpad_show", "scratchpad_toggle", b"scratchpad_toggle", "screen_height", b"screen_height", "screen_width", b"screen_width", "send_to_output", b"send_to_output", "send_to_workspace", b"send_to_workspace", "set_animation", b"set_animation", "set_argb_frames", b"set_argb_frames", "set_arranger", b"set_arranger", "set_arranger_index", b"set_arranger_index", "set_autoclean", b"set_autoclean", "set_border_side_colors_focused_only", b"set_border_side_colors_focused_only", "set_border_width", b"set_border_width", "set_click_to_focus", b"set_click_to_focus", "set_cursor_theme", b"set_cursor_theme", "set_default_arranger", b"set_default_arranger", "set_default_focused_border_color", b"set_default_focused_border_color", "set_default_unfocused_border_color", b"set_default_unfocused_border_color", "set_default_urgent_border_color", b"set_default_urgent_border_color", "set_float_modifier", b"set_float_modifier", "set_float_move_button", b"set_float_move_button", "set_float_resize_button", b"set_float_resize_button", "set_floating", b"set_floating", "set_focus_follows_mouse", b"set_focus_follows_mouse", "set_fullscreen", b"set_fullscreen", "set_gaps", b"set_gaps", "set_gaps_workspace", b"set_gaps_workspace", "set_group_outline", b"set_group_outline", "set_group_outline_of", b"set_group_outline_of", "set_indicator_color", b"set_indicator_color", "set_keyboard_layout", b"set_keyboard_layout", "set_keyboard_layout_index", b"set_keyboard_layout_index", "set_layout", b"set_layout", "set_lock_horizontal_resize", b"set_lock_horizontal_resize", "set_lock_vertical_resize", b"set_lock_vertical_resize", "set_name", b"set_name", "set_node_border_side_color", b"set_node_border_side_color", "set_node_empty", b"set_node_empty", "set_node_focused_border_color", b"set_node_focused_border_color", "set_node_indicator", b"set_node_indicator", "set_node_unfocused_border_color", b"set_node_unfocused_border_color", "set_node_window", b"set_node_window", "set_pan", b"set_pan", "set_pan_button", b"set_pan_button", "set_pan_disabled", b"set_pan_disabled", "set_pan_modifier", b"set_pan_modifier", "set_preview_colors", b"set_preview_colors", "set_preview_colors_workspace", b"set_preview_colors_workspace", "set_preview_font", b"set_preview_font", "set_preview_font_workspace", b"set_preview_font_workspace", "set_preview_max_icon_size", b"set_preview_max_icon_size", "set_prompt_keys", b"set_prompt_keys", "set_reparent_strategy", b"set_reparent_strategy", "set_resize_modifier", b"set_resize_modifier", "set_scope", b"set_scope", "set_urgent", b"set_urgent", "set_virtual_size", b"set_virtual_size", "set_workspace_switch_mode", b"set_workspace_switch_mode", "set_zoom", b"set_zoom", "setenv", b"setenv", "show_window", b"show_window", "spawn", b"spawn", "split", b"split", "subscribe", b"subscribe", "switch_to_workspace", b"switch_to_workspace", "toggle_floating", b"toggle_floating", "toggle_fullscreen", b"toggle_fullscreen", "unbind", b"unbind", "ungroup", b"ungroup", "unregister_node", b"unregister_node", "unregister_swallow", b"unregister_swallow", "unsubscribe", b"unsubscribe", "warp_cursor", b"warp_cursor", "warp_cursor_to_node", b"warp_cursor_to_node"]  # noqa: Y015
     def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
-    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["focus_left", "focus_right", "focus_up", "focus_down", "focus", "get_focused", "exchange_left", "exchange_right", "exchange_up", "exchange_down", "kill_client", "toggle_floating", "toggle_fullscreen", "left_of", "right_of", "above", "below", "align_left", "align_top", "align_right", "align_bottom", "equal_width", "equal_height", "float_left_of", "float_right_of", "float_above", "float_below", "float_align_left", "float_align_top", "float_align_right", "float_align_bottom", "float_equal_width", "float_equal_height", "float_clear_constraints", "fixed_width", "fixed_height", "fixed_x", "fixed_y", "fixed_ratio", "grid_cell", "grid_cell_abs", "split", "clear_constraints", "remove_constraint", "create_root_node", "create_empty_node", "create_container", "destroy_container", "remove_node", "reparent", "set_reparent_strategy", "unregister_node", "set_node_empty", "set_node_window", "move_window_to_node", "get_container_of", "get_node_type", "get_node_geometry", "get_node_info", "get_split_ratios", "get_all_windows", "set_name", "get_name", "find", "get_path", "set_scope", "get_scope", "screen_width", "screen_height", "get_work_area", "set_pan", "pan_by", "get_pan", "set_virtual_size", "set_pan_disabled", "set_lock_horizontal_resize", "set_lock_vertical_resize", "resize_edge", "resize_corner", "resize_focused_edge", "resize_focused_corner", "set_zoom", "get_zoom", "get_window_class", "get_window_name", "get_window_pid", "set_floating", "set_fullscreen", "get_urgent", "set_urgent", "hide_window", "show_window", "register_swallow", "unregister_swallow", "scratchpad_toggle", "scratchpad_show", "scratchpad_hide", "get_scratchpad", "add_rule", "remove_rule", "set_resize_modifier", "set_float_modifier", "set_pan_modifier", "set_pan_button", "set_float_move_button", "set_float_resize_button", "set_click_to_focus", "set_focus_follows_mouse", "get_cursor_pos", "get_cursor_relative_to_focused", "warp_cursor", "warp_cursor_to_node", "get_mouse_node", "set_cursor_theme", "set_keyboard_layout", "set_keyboard_layout_index", "bind_commands", "unbind", "bind", "get_keybinds", "read_line", "set_prompt_keys", "set_default_focused_border_color", "set_default_unfocused_border_color", "set_default_urgent_border_color", "set_border_width", "set_node_focused_border_color", "set_node_unfocused_border_color", "clear_node_focused_border_color", "clear_node_unfocused_border_color", "set_node_border_side_color", "clear_node_border_side_colors", "get_node_border_side_colors", "set_border_side_colors_focused_only", "set_gaps", "set_gaps_workspace", "set_preview_colors", "set_preview_colors_workspace", "set_preview_font", "set_preview_font_workspace", "set_preview_max_icon_size", "set_argb_frames", "force_rgb_frames", "set_indicator_color", "set_node_indicator", "clear_node_indicator", "set_animation", "message", "switch_to_workspace", "send_to_workspace", "enter_workspace_by_id", "create_nested_workspace", "enter_nested", "enter_nested_by_id", "leave_nested", "set_workspace_switch_mode", "set_autoclean", "cleanup_left_behind", "get_workspace", "get_workspace_positions", "get_workspace_states", "get_current_workspace_position", "get_workspaces_at_level", "get_current_workspace", "get_current_level", "get_node_level", "spawn", "setenv", "quit", "exec_once", "reload_config", "eval", "get_layout", "set_layout", "print_graph", "set_arranger", "register_arranger", "set_default_arranger", "get_arranger_name", "get_arranger_index", "set_arranger_index", "print_graph_pretty", "get_outputs", "focus_output", "send_to_output", "get_output_states", "create_group", "ungroup", "move_to_group", "get_group", "get_group_members", "set_group_outline", "set_group_outline_of", "focus_parent", "focus_child"]  # noqa: Y015
+    _WhichOneofReturnType_kind: _TypeAlias = _typing.Literal["focus_left", "focus_right", "focus_up", "focus_down", "focus", "get_focused", "exchange_left", "exchange_right", "exchange_up", "exchange_down", "kill_client", "toggle_floating", "toggle_fullscreen", "left_of", "right_of", "above", "below", "align_left", "align_top", "align_right", "align_bottom", "equal_width", "equal_height", "float_left_of", "float_right_of", "float_above", "float_below", "float_align_left", "float_align_top", "float_align_right", "float_align_bottom", "float_equal_width", "float_equal_height", "float_clear_constraints", "fixed_width", "fixed_height", "fixed_x", "fixed_y", "fixed_ratio", "grid_cell", "grid_cell_abs", "split", "clear_constraints", "remove_constraint", "create_root_node", "create_empty_node", "create_container", "destroy_container", "remove_node", "reparent", "set_reparent_strategy", "unregister_node", "set_node_empty", "set_node_window", "move_window_to_node", "get_container_of", "get_node_type", "get_node_geometry", "get_node_info", "get_split_ratios", "get_all_windows", "set_name", "get_name", "find", "get_path", "set_scope", "get_scope", "screen_width", "screen_height", "get_work_area", "set_pan", "pan_by", "get_pan", "set_virtual_size", "set_pan_disabled", "set_lock_horizontal_resize", "set_lock_vertical_resize", "resize_edge", "resize_corner", "resize_focused_edge", "resize_focused_corner", "set_zoom", "get_zoom", "get_window_class", "get_window_name", "get_window_pid", "set_floating", "set_fullscreen", "get_urgent", "set_urgent", "hide_window", "show_window", "register_swallow", "unregister_swallow", "scratchpad_toggle", "scratchpad_show", "scratchpad_hide", "get_scratchpad", "add_rule", "remove_rule", "set_resize_modifier", "set_float_modifier", "set_pan_modifier", "set_pan_button", "set_float_move_button", "set_float_resize_button", "set_click_to_focus", "set_focus_follows_mouse", "get_cursor_pos", "get_cursor_relative_to_focused", "warp_cursor", "warp_cursor_to_node", "get_mouse_node", "set_cursor_theme", "set_keyboard_layout", "set_keyboard_layout_index", "bind_commands", "unbind", "bind", "get_keybinds", "read_line", "set_prompt_keys", "set_default_focused_border_color", "set_default_unfocused_border_color", "set_default_urgent_border_color", "set_border_width", "set_node_focused_border_color", "set_node_unfocused_border_color", "clear_node_focused_border_color", "clear_node_unfocused_border_color", "set_node_border_side_color", "clear_node_border_side_colors", "get_node_border_side_colors", "set_border_side_colors_focused_only", "set_gaps", "set_gaps_workspace", "set_preview_colors", "set_preview_colors_workspace", "set_preview_font", "set_preview_font_workspace", "set_preview_max_icon_size", "set_argb_frames", "force_rgb_frames", "set_indicator_color", "set_node_indicator", "clear_node_indicator", "set_animation", "message", "switch_to_workspace", "send_to_workspace", "enter_workspace_by_id", "create_nested_workspace", "enter_nested", "enter_nested_by_id", "leave_nested", "set_workspace_switch_mode", "set_autoclean", "cleanup_left_behind", "get_workspace", "get_workspace_positions", "get_workspace_states", "get_current_workspace_position", "get_workspaces_at_level", "get_current_workspace", "get_current_level", "get_node_level", "spawn", "setenv", "quit", "exec_once", "reload_config", "eval", "get_layout", "set_layout", "print_graph", "set_arranger", "register_arranger", "set_default_arranger", "get_arranger_name", "get_arranger_index", "set_arranger_index", "print_graph_pretty", "get_scene", "get_outputs", "focus_output", "send_to_output", "get_output_states", "create_group", "ungroup", "move_to_group", "get_group", "get_group_members", "set_group_outline", "set_group_outline_of", "focus_parent", "focus_child", "subscribe", "unsubscribe"]  # noqa: Y015
     _WhichOneofArgType_kind: _TypeAlias = _typing.Literal["kind", b"kind"]  # noqa: Y015
     def WhichOneof(self, oneof_group: _WhichOneofArgType_kind) -> _WhichOneofReturnType_kind | None: ...
 

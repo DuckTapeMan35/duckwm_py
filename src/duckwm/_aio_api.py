@@ -524,8 +524,8 @@ class AsyncApi:
     async def eval(self, source: str) -> Any:
         return (await self.run(cmd.eval(source)))[0]
 
-    async def get_layout(self) -> Any:
-        return (await self.run(cmd.get_layout()))[0]
+    async def get_layout(self, id: int | None = None) -> Any:
+        return (await self.run(cmd.get_layout(id)))[0]
 
     async def set_layout(self, layout: pb.LayoutSpec | list[pb.NodeSpec]) -> Any:
         return (await self.run(cmd.set_layout(layout)))[0]
@@ -553,6 +553,9 @@ class AsyncApi:
 
     async def print_graph_pretty(self, cols: int | None = None, rows: int | None = None) -> Any:
         return (await self.run(cmd.print_graph_pretty(cols, rows)))[0]
+
+    async def get_scene(self) -> Any:
+        return (await self.run(cmd.get_scene()))[0]
 
     async def get_outputs(self) -> Any:
         return (await self.run(cmd.get_outputs()))[0]
@@ -592,3 +595,9 @@ class AsyncApi:
 
     async def focus_child(self) -> Any:
         return (await self.run(cmd.focus_child()))[0]
+
+    async def subscribe(self, topic: Literal['scene', 'focus', 'names', 'outputs'] | int, callback: CallbackLike) -> Any:
+        return (await self.run(cmd.subscribe(topic, callback)))[0]
+
+    async def unsubscribe(self, id: int) -> Any:
+        return (await self.run(cmd.unsubscribe(id)))[0]

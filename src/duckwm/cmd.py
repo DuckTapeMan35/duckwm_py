@@ -698,8 +698,8 @@ def eval(source: str) -> Cmd:
     return Cmd('eval', {'source': source})
 
 
-def get_layout() -> Cmd:
-    return Cmd('get_layout', {})
+def get_layout(id: int | None = None) -> Cmd:
+    return Cmd('get_layout', {'id': id})
 
 
 def set_layout(layout: pb.LayoutSpec | list[pb.NodeSpec]) -> Cmd:
@@ -736,6 +736,10 @@ def set_arranger_index(index: int) -> Cmd:
 
 def print_graph_pretty(cols: int | None = None, rows: int | None = None) -> Cmd:
     return Cmd('print_graph_pretty', {'cols': cols, 'rows': rows})
+
+
+def get_scene() -> Cmd:
+    return Cmd('get_scene', {})
 
 
 def get_outputs() -> Cmd:
@@ -788,3 +792,11 @@ def focus_parent() -> Cmd:
 
 def focus_child() -> Cmd:
     return Cmd('focus_child', {})
+
+
+def subscribe(topic: Literal['scene', 'focus', 'names', 'outputs'] | int, callback: CallbackLike) -> Cmd:
+    return Cmd('subscribe', {'topic': topic, 'callback': callback})
+
+
+def unsubscribe(id: int) -> Cmd:
+    return Cmd('unsubscribe', {'id': id})
