@@ -212,6 +212,12 @@ class AsyncApi:
     async def get_path(self, id: int) -> Any:
         return (await self.run(cmd.get_path(id)))[0]
 
+    async def set_scope(self, path: str | None = None) -> Any:
+        return (await self.run(cmd.set_scope(path)))[0]
+
+    async def get_scope(self) -> Any:
+        return (await self.run(cmd.get_scope()))[0]
+
     async def screen_width(self) -> Any:
         return (await self.run(cmd.screen_width()))[0]
 

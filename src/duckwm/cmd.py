@@ -270,6 +270,14 @@ def get_path(id: int) -> Cmd:
     return Cmd('get_path', {'id': id})
 
 
+def set_scope(path: str | None = None) -> Cmd:
+    return Cmd('set_scope', {'path': path})
+
+
+def get_scope() -> Cmd:
+    return Cmd('get_scope', {})
+
+
 def screen_width() -> Cmd:
     return Cmd('screen_width', {})
 

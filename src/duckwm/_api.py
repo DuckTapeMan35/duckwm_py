@@ -212,6 +212,12 @@ class Api:
     def get_path(self, id: int) -> Any:
         return self.run(cmd.get_path(id))[0]
 
+    def set_scope(self, path: str | None = None) -> Any:
+        return self.run(cmd.set_scope(path))[0]
+
+    def get_scope(self) -> Any:
+        return self.run(cmd.get_scope())[0]
+
     def screen_width(self) -> Any:
         return self.run(cmd.screen_width())[0]
 
