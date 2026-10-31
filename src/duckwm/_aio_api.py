@@ -455,6 +455,9 @@ class AsyncApi:
     async def message(self, text: str, timeout_ms: int) -> Any:
         return (await self.run(cmd.message(text, timeout_ms)))[0]
 
+    async def set_corner_radius(self, radius: int) -> Any:
+        return (await self.run(cmd.set_corner_radius(radius)))[0]
+
     async def switch_to_workspace(self, index: int) -> Any:
         return (await self.run(cmd.switch_to_workspace(index)))[0]
 

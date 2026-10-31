@@ -455,6 +455,9 @@ class Api:
     def message(self, text: str, timeout_ms: int) -> Any:
         return self.run(cmd.message(text, timeout_ms))[0]
 
+    def set_corner_radius(self, radius: int) -> Any:
+        return self.run(cmd.set_corner_radius(radius))[0]
+
     def switch_to_workspace(self, index: int) -> Any:
         return self.run(cmd.switch_to_workspace(index))[0]
 

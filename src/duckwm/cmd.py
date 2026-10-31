@@ -602,6 +602,10 @@ def message(text: str, timeout_ms: int) -> Cmd:
     return Cmd('message', {'text': text, 'timeout_ms': timeout_ms})
 
 
+def set_corner_radius(radius: int) -> Cmd:
+    return Cmd('set_corner_radius', {'radius': radius})
+
+
 def switch_to_workspace(index: int) -> Cmd:
     return Cmd('switch_to_workspace', {'index': index})
 
