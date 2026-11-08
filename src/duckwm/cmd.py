@@ -606,6 +606,10 @@ def set_corner_radius(radius: int) -> Cmd:
     return Cmd('set_corner_radius', {'radius': radius})
 
 
+def set_shadow(blur: int, spread: int, x: int, y: int, color: int | str, unfocused_color: int) -> Cmd:
+    return Cmd('set_shadow', {'blur': blur, 'spread': spread, 'x': x, 'y': y, 'color': color, 'unfocused_color': unfocused_color})
+
+
 def switch_to_workspace(index: int) -> Cmd:
     return Cmd('switch_to_workspace', {'index': index})
 

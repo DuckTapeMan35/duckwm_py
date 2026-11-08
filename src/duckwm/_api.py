@@ -458,6 +458,9 @@ class Api:
     def set_corner_radius(self, radius: int) -> Any:
         return self.run(cmd.set_corner_radius(radius))[0]
 
+    def set_shadow(self, blur: int, spread: int, x: int, y: int, color: int | str, unfocused_color: int) -> Any:
+        return self.run(cmd.set_shadow(blur, spread, x, y, color, unfocused_color))[0]
+
     def switch_to_workspace(self, index: int) -> Any:
         return self.run(cmd.switch_to_workspace(index))[0]
 
