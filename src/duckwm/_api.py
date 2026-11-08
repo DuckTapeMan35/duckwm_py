@@ -461,6 +461,24 @@ class Api:
     def set_shadow(self, blur: int, spread: int, x: int, y: int, color: int | str, unfocused_color: int) -> Any:
         return self.run(cmd.set_shadow(blur, spread, x, y, color, unfocused_color))[0]
 
+    def set_blur(self, passes: int, offset: float) -> Any:
+        return self.run(cmd.set_blur(passes, offset))[0]
+
+    def set_default_blur(self, blur: Literal['client', 'on', 'off'] | int) -> Any:
+        return self.run(cmd.set_default_blur(blur))[0]
+
+    def set_node_blur(self, id: int, blur: Literal['client', 'on', 'off'] | int) -> Any:
+        return self.run(cmd.set_node_blur(id, blur))[0]
+
+    def clear_node_blur(self, id: int) -> Any:
+        return self.run(cmd.clear_node_blur(id))[0]
+
+    def set_node_shadow(self, id: int, blur: int, spread: int, x: int, y: int, color: int | str, unfocused_color: int) -> Any:
+        return self.run(cmd.set_node_shadow(id, blur, spread, x, y, color, unfocused_color))[0]
+
+    def clear_node_shadow(self, id: int) -> Any:
+        return self.run(cmd.clear_node_shadow(id))[0]
+
     def switch_to_workspace(self, index: int) -> Any:
         return self.run(cmd.switch_to_workspace(index))[0]
 

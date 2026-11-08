@@ -610,6 +610,30 @@ def set_shadow(blur: int, spread: int, x: int, y: int, color: int | str, unfocus
     return Cmd('set_shadow', {'blur': blur, 'spread': spread, 'x': x, 'y': y, 'color': color, 'unfocused_color': unfocused_color})
 
 
+def set_blur(passes: int, offset: float) -> Cmd:
+    return Cmd('set_blur', {'passes': passes, 'offset': offset})
+
+
+def set_default_blur(blur: Literal['client', 'on', 'off'] | int) -> Cmd:
+    return Cmd('set_default_blur', {'blur': blur})
+
+
+def set_node_blur(id: int, blur: Literal['client', 'on', 'off'] | int) -> Cmd:
+    return Cmd('set_node_blur', {'id': id, 'blur': blur})
+
+
+def clear_node_blur(id: int) -> Cmd:
+    return Cmd('clear_node_blur', {'id': id})
+
+
+def set_node_shadow(id: int, blur: int, spread: int, x: int, y: int, color: int | str, unfocused_color: int) -> Cmd:
+    return Cmd('set_node_shadow', {'id': id, 'blur': blur, 'spread': spread, 'x': x, 'y': y, 'color': color, 'unfocused_color': unfocused_color})
+
+
+def clear_node_shadow(id: int) -> Cmd:
+    return Cmd('clear_node_shadow', {'id': id})
+
+
 def switch_to_workspace(index: int) -> Cmd:
     return Cmd('switch_to_workspace', {'index': index})
 
