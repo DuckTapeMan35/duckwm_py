@@ -479,6 +479,18 @@ class Api:
     def clear_node_shadow(self, id: int) -> Any:
         return self.run(cmd.clear_node_shadow(id))[0]
 
+    def get_layer_namespace(self, id: int) -> Any:
+        return self.run(cmd.get_layer_namespace(id))[0]
+
+    def set_layer_corners(self, id: int, radius: int) -> Any:
+        return self.run(cmd.set_layer_corners(id, radius))[0]
+
+    def set_layer_shadow(self, id: int, blur: int, spread: int, x: int, y: int, color: int | str) -> Any:
+        return self.run(cmd.set_layer_shadow(id, blur, spread, x, y, color))[0]
+
+    def set_layer_blur(self, id: int, blur: Literal['client', 'on', 'off'] | int) -> Any:
+        return self.run(cmd.set_layer_blur(id, blur))[0]
+
     def switch_to_workspace(self, index: int) -> Any:
         return self.run(cmd.switch_to_workspace(index))[0]
 

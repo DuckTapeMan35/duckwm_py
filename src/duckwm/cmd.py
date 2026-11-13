@@ -634,6 +634,22 @@ def clear_node_shadow(id: int) -> Cmd:
     return Cmd('clear_node_shadow', {'id': id})
 
 
+def get_layer_namespace(id: int) -> Cmd:
+    return Cmd('get_layer_namespace', {'id': id})
+
+
+def set_layer_corners(id: int, radius: int) -> Cmd:
+    return Cmd('set_layer_corners', {'id': id, 'radius': radius})
+
+
+def set_layer_shadow(id: int, blur: int, spread: int, x: int, y: int, color: int | str) -> Cmd:
+    return Cmd('set_layer_shadow', {'id': id, 'blur': blur, 'spread': spread, 'x': x, 'y': y, 'color': color})
+
+
+def set_layer_blur(id: int, blur: Literal['client', 'on', 'off'] | int) -> Cmd:
+    return Cmd('set_layer_blur', {'id': id, 'blur': blur})
+
+
 def switch_to_workspace(index: int) -> Cmd:
     return Cmd('switch_to_workspace', {'index': index})
 
